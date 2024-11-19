@@ -96,7 +96,7 @@ construct_master_dataframe<-function(variable.details.df, blinded='y', name.of.s
   if (blinded=='y'){
     # Dummy Randomisation (if blinded)-----------------------------------------------------
     set.seed(2602)
-    rand_arm<-sample(1:3, length(unique(main.df$screening)), replace = TRUE, prob=rep(1/N.Arms, N.Arms))
+    rand_arm<-sample(1:N.Arms, length(unique(main.df$screening)), replace = TRUE, prob=rep(1/N.Arms, N.Arms))
     main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, rand_arm, unique(main.df$screening))
 
   } else {
