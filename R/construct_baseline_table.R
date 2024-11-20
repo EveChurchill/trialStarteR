@@ -14,7 +14,7 @@
 #'
 #' @export
 
-construct_screening_table<-function(trial.data, variable.details.df=variable.details.df){
+construct_baseline_table<-function(trial.data, variable.details.df=variable.details.df){
 
   characteristic_data<-trial.data[trial.data$event_name=='Baseline', ]
 
