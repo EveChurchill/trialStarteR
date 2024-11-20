@@ -38,18 +38,18 @@ merge_or_insert<-function(main.df, df.text.name, variable_s, single_occ.var, sin
     single_occ.var.df=append(single_occ.var.df, rep(df.text.name, length(variable_s[!(variable_s %in% standard.set.column)])))
 
   } else if (grepl('adverse', df.text.name)) {
-    df.text.name<-get(df.text.name)[order(df.text.name$screening), ]
+    df<-get(df.text.name)[order(get(df.text.name)$screening), ]
     ae_event_name<-c()
-    for (id in unique(df.text.name$screening)){
+    for (id in unique(df$screening)){
       ae_event_name<-append(ae_event_name,
-                            paste('Adverse Event', 1:sum(df.text.name$screening==id), sep=" "))
+                            paste('Adverse Event', 1:sum(df$screening==id), sep=" "))
     }
-    df.text.name$event_name<-ae_event_name
+    df$event_name<-ae_event_name
 
     #+ Adverse Events
     main.df<- dplyr::bind_rows(main.df,
 
-                               get(df.text.name)[ , variable_s])
+                               df[ , variable_s])
 
 
   } else {
