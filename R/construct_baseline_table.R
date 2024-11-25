@@ -65,7 +65,7 @@ construct_baseline_table<-function(trial.data, variable.details.df=variable.deta
 
     arm.data.lengths<-unlist(lapply(arm.data, length))
     arm.data.lengths.cs<-c(0, cumsum(arm.data.lengths))[1:(N.Arms+1)]
-    n.obsv<-lapply(arm.data, N.nonempty)
+    n.obsv<-lapply(arm.data, N_nonempty)
 
     sds<-lapply(arm.data, sd_rounding_rm_na)
 
@@ -99,7 +99,7 @@ construct_baseline_table<-function(trial.data, variable.details.df=variable.deta
     arm.data.lengths<-unlist(lapply(arm.data, length))
     arm.data.lengths.cs<-c(0, cumsum(arm.data.lengths))[1:(N.Arms+1)]
 
-    n.obsv<-lapply(arm.data, N.nonempty)
+    n.obsv<-lapply(arm.data, N_nonempty)
 
     summs<-lapply(arm.data, categorical_summary_rm_na)
     summs.lengths.cs<-c(0, cumsum(unlist(lapply(summs, length))))[1:(N.Arms+1)]
