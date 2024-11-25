@@ -20,6 +20,8 @@
 #' If blinded='y', a dummy randomisation will be implemented. If blinded='n',
 #' the randomisation allocation will be taken from PROSPECT.
 #'
+#' If there are duplicate variable names, the df names will be appended to them e.g. variable.dfname
+#'
 #'
 #'
 #'

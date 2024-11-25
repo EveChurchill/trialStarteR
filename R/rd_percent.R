@@ -13,6 +13,6 @@
 #'  @examples rd_percent(3, 10)
 #' @export
 
-rd_percent<-function(n, N){
-  return(round(100*n/N, 0))
+rd_percent<-function(numerator.n, denominator.N){
+  return(round(100*numerator.n/denominator.N, 0))
 }
