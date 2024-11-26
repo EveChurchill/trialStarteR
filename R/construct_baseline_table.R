@@ -8,30 +8,32 @@
 #'
 #' @param trial.data (dataframe) the dataframe containing all the trial data - ideally created by the data_construction function in this package.
 #'
-#' @param variable.details.df (dataframe) the dataframe within the inputs folder which specifies which variables to be seen in the baseline table - typically called variable.details.df
+#' @param var.spec (dataframe) the dataframe within the inputs folder which specifies which variables to be seen in the baseline table - typically called variable.details.df
 #'
 #' @returns (dataframe) returns a dataframe which summarises the baseline characteristics
 #'
 #' @export
 
-construct_baseline_table<-function(trial.data, variable.details.df=variable.details.df){
+construct_baseline_table<-function(trial.data, var.spec=variable.details.df){
 
   characteristic_data<-trial.data[trial.data$event_name=='Baseline', ]
 
-  all.variables.ordered<-variable.details.df$VariableProspectName[
-    variable.details.df$baseline_yn=='y'
+  all.variables.ordered<-var.spec$VariableProspectName[
+    var.spec$baseline_yn=='y'
   ]
 
   all.variables.ordered<-suffix.replacement_ref.masterDF(all.variables.ordered)
 
   #Get continous and categorical variables ready for summaries and check and modify duplicate names
-  continuous<-variable.details.df$VariableProspectName[variable.details.df$DataType=='continuous']
+  continuous<-var.spec$VariableProspectName[var.spec$DataType=='continuous']
   continuous<-continuous[continuous %in% all.variables.ordered]
-  continuous<-ifelse(duplicated(continuous), paste(continuous, continuous.dfs, sep=""), continuous)
+  continuous<-ifelse(duplicated(continuous),
+                     paste(continuous, var.spec$DfProspectName[var.spec$VariableProspectName==continuous], sep="."),
+                     continuous)
 
-  categorical<-variable.details.df$VariableProspectName[variable.details.df$DataType=='categorical']
+  categorical<-var.spec$VariableProspectName[var.spec$DataType=='categorical']
   categorical<-categorical[categorical %in% all.variables.ordered]
-  categorical<-ifelse(duplicated(categorical), paste(categorical, categorical.dfs, sep=""), categorical)
+  categorical<-ifelse(duplicated(categorical), paste(categorical, var.spec$DfProspectName[var.spec$VariableProspectName==categorical], sep=""), categorical)
 
   #Get baseline screening separate for ease
   characteristic_data<-characteristic_data[, c('screening', categorical, continuous)]
@@ -136,7 +138,7 @@ construct_baseline_table<-function(trial.data, variable.details.df=variable.deta
     if (variable %in% continuous) {
       data_to_log<-cont.summ_to_string(variable, characteristic_data)
 
-      item.name<-variable.details.df$VariableTextName[variable.details.df$VariableProspectName==variable]
+      item.name<-var.spec$VariableTextName[var.spec$VariableProspectName==variable]
 
       #Append all to summary_table.presented
       summary_table.presented[row.n , ]<-c(item.name, 'N (%)',
@@ -152,7 +154,7 @@ construct_baseline_table<-function(trial.data, variable.details.df=variable.deta
     } else if (variable %in% categorical){
       # Categorical Summaries ----------------------------------------------------
 
-      item.name<-variable.details.df$VariableTextName[variable.details.df$VariableProspectName==variable]
+      item.name<-var.spec$VariableTextName[var.spec$VariableProspectName==variable]
       row.text<-cat.summ_to_string(variable, characteristic_data, item.name)
 
       for (item in 1:length(row.text)) {
