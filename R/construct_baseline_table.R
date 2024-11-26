@@ -14,7 +14,7 @@
 #'
 #' @export
 
-construct_baseline_table<-function(trial.data, var.spec=variable.details.df){
+construct_baseline_table<-function(trial.data, var.spec=variable.details.df, population.list.obj=itt){
 
   characteristic_data<-trial.data[trial.data$event_name=='Baseline', ]
 
@@ -61,7 +61,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df){
 
     arm.data<-list()
     for (i in 1:N.Arms){
-      arm.data[[i]]<-var.data[dataframe.name$screening %in% itt[[i]] ]
+      arm.data[[i]]<-var.data[dataframe.name$screening %in% population.list.obj[[i]] ]
     }
     arm.data[[i+1]]<-var.data
 
@@ -94,7 +94,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df){
 
     arm.data<-list()
     for (i in 1:N.Arms){
-      arm.data[[i]]<-var.data[dataframe.name$screening %in% itt[[i]] ]
+      arm.data[[i]]<-var.data[dataframe.name$screening %in% population.list.obj[[i]] ]
     }
     arm.data[[i+1]]<-var.data
 
@@ -112,7 +112,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df){
       paste(
         unlist(n.obsv),
         ' (',
-        percentage_summaries_perArmOverall(as.numeric(unlist(n.obsv)), itt),
+        percentage_summaries_perArmOverall(as.numeric(unlist(n.obsv)), population.list.obj),
         '%)', sep=""))
     label=label+1
     for (level in names(summs[[N.Arms+1]])) {
@@ -121,8 +121,8 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df){
                                            paste(
                                              unlist(summs)[which(names(unlist(summs))==level)],
                                              ' (',
-                                             percentageN.summaries(
-                                               unlist(summs)[which(names(unlist(summs))==level)], itt),
+                                             percentage_summaries_perArmOverall(
+                                               unlist(summs)[which(names(unlist(summs))==level)], id.list.object),
                                              '%)', sep=""))
       label=label+1
     }

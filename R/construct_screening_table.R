@@ -14,7 +14,7 @@
 #'
 #' @export
 
-construct_screening_table<-function(trial.data, var.spec=variable.details.df){
+construct_screening_table<-function(trial.data, var.spec=variable.details.df, population.list.obj=itt){
   all.variables.ordered<-var.spec$VariableProspectName[var.spec$screening_yn=='y']
 
   all.variables.ordered<-suffix_replacement_refInput(all.variables.ordered)
