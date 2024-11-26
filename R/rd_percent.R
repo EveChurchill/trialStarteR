@@ -14,7 +14,5 @@
 #' @export
 
 rd_percent<-function(numerator.n, denominator.N){
-  force(numerator.n)
-  force(denominator.N)
   return(round(100*numerator.n/denominator.N, 0))
 }
