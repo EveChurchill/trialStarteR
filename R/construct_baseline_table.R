@@ -146,7 +146,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df){
 
       summary_table.presented[row.n+1 , ]<-c('', "  Mean (SD)", paste(data_to_log[[2]], ' (', data_to_log[[4]], ')', sep=""))
       summary_table.presented[row.n+2 , ]<-c('', "  Median (IQR)", paste(data_to_log[[3]], data_to_log[[5]], sep=" "))
-      summary_table.presented[row.n+3, ]<-c('', "  Minimum, Maximum", paste(data_to_log[[6]], ', ',data_to_log[[7]], sep=""))
+      summary_table.presented[row.n+3, ]<-c('', "  Min, Max", paste(data_to_log[[6]], ', ',data_to_log[[7]], sep=""))
 
       row.n=row.n+4
 

@@ -69,7 +69,7 @@ construct_screening_table<-function(trial.data, var.spec=variable.details.df){
 
       screening.characteristics.table[row.n+1 , ]<-c('', "  Mean (SD)", paste(data_to_log[4], ' (', sd_rounding_rm_na(variable.data), ')', sep=""))
       screening.characteristics.table[row.n+2 , ]<-c('', "  Median (IQR)", paste(data_to_log[3], ' (',data_to_log[2], ', ',data_to_log[5], ')', sep=""))
-      screening.characteristics.table[row.n+3, ]<-c('', "  Minimum, Maximum", paste(data_to_log[1], ', ',data_to_log[6], sep=""))
+      screening.characteristics.table[row.n+3, ]<-c('', "  Min, Max", paste(data_to_log[1], ', ',data_to_log[6], sep=""))
 
       row.n=row.n+4
 
@@ -83,7 +83,7 @@ construct_screening_table<-function(trial.data, var.spec=variable.details.df){
       n.o<-N_nonempty(variable.data)
 
       #factor percentages in each arm
-      summ_o<-categorical_summary_rm_na(variable_data)
+      summ_o<-categorical_summary_rm_na(variable.data)
 
       #Append all to screening.characteristics.table
       item.name<-var.spec$VariableTextName[var.spec$VariableProspectName==variable]
