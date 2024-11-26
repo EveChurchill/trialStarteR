@@ -110,7 +110,7 @@ construct_baseline_table<-function(trial.data, variable.details.df=variable.deta
       paste(
         unlist(n.obsv),
         ' (',
-        percentage_summaries_perArmOverall(unlist(n.obsv), itt),
+        percentage_summaries_perArmOverall(as.numeric(unlist(n.obsv)), itt),
         '%)', sep=""))
     label=label+1
     for (level in names(summs[[N.Arms+1]])) {
