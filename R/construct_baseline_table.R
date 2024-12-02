@@ -14,15 +14,48 @@
 #'
 #' @export
 
-construct_baseline_table<-function(trial.data, var.spec=variable.details.df, population.list.obj=itt){
+construct_baseline_table<-function(trial.data, var.spec=variable.details.df, population.list.obj=itt, fill_baselineNAs_screening_data='n'){
+  if (fill_baselineNAs_screening_data=='n'){
+    characteristic_data<-trial.data[trial.data$event_name=='Baseline', ]
 
-  characteristic_data<-trial.data[trial.data$event_name=='Baseline', ]
+    all.variables.ordered<-var.spec$VariableProspectName[
+      var.spec$baseline_yn=='y'
+    ]
+  } else {
+    characteristic_data<-trial.data[trial.data$event_name=='Baseline', ]
 
-  all.variables.ordered<-var.spec$VariableProspectName[
-    var.spec$baseline_yn=='y'
-  ]
+    all.variables.ordered<-var.spec$VariableProspectName[
+      var.spec$baseline_yn=='y' | var.spec$baseline_yn=='y']
 
-  all.variables.ordered<-suffix.replacement_ref.masterDF(all.variables.ordered)
+    #replace any missing data with screening data where possible
+
+    for (id in characteristic_data$screening){
+      #check for all baseline related fields
+      if(any(characteristic_data$event_name=='Baseline participants' & characteristic_data$screening==id)) {
+
+        missing_data.indiv<-which(
+          is.na(characteristic_data[characteristic_data$screening==id, ])
+        )
+
+        characteristic_data[characteristic_data$screening==id, missing_data.indiv]<-
+          trial.data[trial.data$event_name=='Baseline participants' & trial.data$screening==id, missing_data.indiv]
+      }
+
+      #check for all screening fields
+      if(any(trial.data$event_name=='Screening' & trial.data$screening==id)) {
+
+        missing_data.indiv<-which(
+          is.na(characteristic_data[characteristic_data$screening==id, ])
+        )
+
+        characteristic_data[characteristic_data$screening==id, missing_data.indiv]<-
+          trial.data[trial.data$event_name=='Screening' & trial.data$screening==id, missing_data.indiv]
+      }
+
+    }
+  }
+
+  all.variables.ordered<-suffix_replacement_refInput(all.variables.ordered)
 
   #Get continous and categorical variables ready for summaries and check and modify duplicate names
   continuous<-var.spec$VariableProspectName[var.spec$DataType=='continuous']
