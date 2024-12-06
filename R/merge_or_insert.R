@@ -57,7 +57,6 @@ merge_or_insert<-function(main.df, df.text.name, df, variable_s, single_occ.var,
                      df[ , variable_s],
                      by=c("screening", "event_id", 'event_name'), all = TRUE)
     }
-  }
   return(list(main.df, single_occ.var, single_occ.var.df))
 }
 
