@@ -80,8 +80,8 @@ merge_or_insert<-function(main.df, df.text.name, variable_s, single_occ.var, sin
       
     } else {
       main.df<-merge(main.df,
-                     get(df.text.name)[ , variable_s],
-                     by=c("screening", "event_id", 'event_name'), all = TRUE, suffixes = c("", df.text.name))
+                     df.text.name[ , variable_s],
+                     by=c("screening", "event_id", 'event_name'), all = TRUE)
     }
   }
   return(list(main.df, single_occ.var, single_occ.var.df))
