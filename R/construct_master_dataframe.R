@@ -41,115 +41,158 @@
 #' @export
 
 
-construct_master_dataframe<-function(variable.details.df, blinded='y', name.of.screening.df, number.arms=N.Arms) {
-    single_occ.var<-c(); single_occ.var.df<-c()
-    duplicated_names<-variable.details.df$VariableProspectName[
-      duplicated(variable.details.df$VariableProspectName)
-      ]
+construct_master_dataframe<-function(variable.details.df,
+                                     blinded='y',
+                                     name.of.visit.df='visit_completion',
+                                     name.of.screening.df,
+                                     number.arms=N.Arms) {
+single_occ.var<-c(); single_occ.var.df<-c(); renamed<-c()
+duplicated_names<-variable.details.df$VariableProspectName[
+  duplicated(variable.details.df$VariableProspectName)
+]
+#Get the dataframe names in prospect
+req.dataframes<-unique(variable.details.df$DfProspectName)
+
+#These columns will be used to map the dataframes together when merging
+id_cols<-c("screening", "event_id","event_name")
+
+#Check visit df and screening df for other variables to add
+visit_cols<-variable.details.df$VariableProspectName[variable.details.df$DfProspectName==name.of.visit.df]
+screening_cols<-variable.details.df$VariableProspectName[variable.details.df$DfProspectName==name.of.screening.df]
+#Visit completion is always available in newer trials,
+#so this is the first dataframe to be included
+main.df<-merge(get(name.of.visit.df)[ , c(id_cols, visit_cols)],
+               get(name.of.screening.df)[, c(id_cols, screening_cols)], by=id_cols, all=TRUE)
+
+#Loop through each dataframe and add the specified columns to the main df
+for (df.text.name in req.dataframes[!(req.dataframes %in% c(name.of.visit.df, name.of.screening.df))]) {
+  
+  #If there isn't any data in the df, then skip
+  if (any(dim(get(df.text.name))==0)){
+    next
+  } else { #If there is data, then merge to main
     
-    #Get the dataframe names in prospect
-    req.dataframes<-unique(variable.details.df$DfProspectName)
+    #Find corresponding variables
+    df_spec_cols<-variable.details.df$VariableProspectName[variable.details.df$DfProspectName==df.text.name]
     
-    #These columns will be used to map the dataframes together when merging
-    id_cols<-c("screening", "event_id","event_name")
+    #Check for duplicated variable names within specified inputs
+    duplicated.column<-ifelse(all(grepl('all', df_spec_cols)),
+                              
+                              colnames(get(df.text.name))[
+                                length(standard.set.column)+which(
+                                  colnames(get(df.text.name))[
+                                    (length(standard.set.column)+1):length(colnames(get(df.text.name)))
+                                  ] %in% variable.details.df$VariableProspectName)],
+                              
+                              df_spec_cols[which(
+                                df_spec_cols %in% variable.details.df$VariableProspectName[
+                                  duplicated(variable.details.df$VariableProspectName)
+                                ])]
+    )
     
-    #Visit completion is always available,
-    #so this is the first dataframe to be included
-    main.df<-merge(visit_completion[ , c(id_cols, 'visit_dt')],
-                   get(name.of.screening.df)[, id_cols], by=id_cols, all=TRUE)
-    
-    #Loop through each dataframe and add the specified columns to the main df
-    for (df.text.name in req.dataframes) {
+    if (!purrr::is_empty(duplicated.column) & !is.na(duplicated.column)) {
       
-      #If there isn't any data in the df, then skip
-      if (any(dim(get(df.text.name))==0)){
-        next
-      } else { #If there is data, then merge to main
-        
-        #Find corresponding variables
-        df_spec_cols<-variable.details.df$VariableProspectName[variable.details.df$DfProspectName==df.text.name]
-        
-        #Check for duplicated variable names within specified inputs
-        dp.idx<-ifelse(all(grepl('all', df_spec_cols)),
-                       integer(0),
-                       which(
-                          df_spec_cols %in% variable.details.df$VariableProspectName[
-                            duplicated(variable.details.df$VariableProspectName)
-                            ]))
-        if (!purrr::is_empty(dp.idx)) {
-          df<-get(df.text.name)[order(get(df.text.name)$screening), ]
-        
-          col.idx<-which(colnames(df)==df_spec_cols[dp.idx])
-          
-          colnames(df)[col.idx]<-paste(df_spec_cols[dp.idx], variable.details.df$DfProspectName[variable.details.df$VariableProspectName==df_spec_cols[dp.idx]][2], sep='_')
-          
-          df_spec_cols[dp.idx]<-paste(df_spec_cols[dp.idx], variable.details.df$DfProspectName[variable.details.df$VariableProspectName==df_spec_cols[dp.idx]][2], sep='_')
-        } else {
-          df<-get(df.text.name)[order(get(df.text.name)$screening), ]
-        }
-        
-        
-        
-        #If all
-        if (any(df_spec_cols=='all')) {
-          result<-merge_or_insert(main.df, df.text.name, df, colnames(df), single_occ.var, single_occ.var.df)
-          main.df<-as.data.frame(result[[1]]); single_occ.var<-result[[2]]; single_occ.var.df<-result[[3]]
-          #If there is a variable name including suffix, all variables containing the text after suffix are needed
-        } else if (any(grepl('suffix', df_spec_cols))) {
-          df_spec_cols<-suffix_replacement_refInput(df_spec_cols)
-          
-          result<-merge_or_insert(main.df, df.text.name, df, c(id_cols,df_spec_cols), single_occ.var, single_occ.var.df)
-          main.df<-as.data.frame(result[[1]]); single_occ.var<-result[[2]]; single_occ.var.df<-result[[3]]
-          
-        } else {
-          if (!('event_name' %in% colnames(df))){
-            id_cols=c("screening", "event_id")
-          }
-          
-          result<-merge_or_insert(main.df, df.text.name, df, c(id_cols,df_spec_cols), single_occ.var, single_occ.var.df)
-          main.df<-as.data.frame(result[[1]]); single_occ.var<-result[[2]]; single_occ.var.df<-result[[3]]
-        }
-      }
+      df<-get(df.text.name)[order(get(df.text.name)$screening), ]
+      
+      col.idx<-which(colnames(df)==duplicated.column)
+      
+      colnames(df)[col.idx]<-paste(duplicated.column,
+                                   df.text.name,
+                                   sep='_')
+      
+      df_spec_cols[df_spec_cols==duplicated.column]<-paste(duplicated.column,
+                                                           df.text.name,
+                                                           sep='_')
+      renamed<-append(renamed, paste(duplicated.column,
+                                     df.text.name,
+                                     sep='_'))
+    } else {
+      df<-get(df.text.name)[order(get(df.text.name)$screening), ]
     }
     
-    #Add in adverse events
     
     
-    
-    
-    
-    #Add in randomisation allocation to main df - rand_arm is dummy, otherwise randomisation$rand_arm
-    if (blinded=='y'){
-      # Dummy Randomisation (if blinded)-----------------------------------------------------
-      set.seed(2602)
-      rand_arm<-sample(1:number.arms, length(unique(main.df$screening)), replace = TRUE, prob=rep(1/number.arms, number.arms))
-      main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, rand_arm, unique(main.df$screening))
+    #If all
+    if (all(df_spec_cols=='all')) {
+      result<-merge_or_insert(main.df,
+                              df.text.name,
+                              df,
+                              colnames(df)[!colnames(df) %in% standard.set.column[!standard.set.column %in% id_cols]],
+                              single_occ.var, single_occ.var.df)
+      main.df<-as.data.frame(result[[1]]); single_occ.var<-result[[2]]; single_occ.var.df<-result[[3]]
+      
+      #If there is a variable name including suffix, all variables containing the text after suffix are needed
+    } else if (any(grepl('suffix', df_spec_cols))) {
+      df_spec_cols<-suffix_replacement_refInput(df_spec_cols)
+      
+      result<-merge_or_insert(main.df, df.text.name, df, c(id_cols,df_spec_cols), single_occ.var, single_occ.var.df)
+      main.df<-as.data.frame(result[[1]]); single_occ.var<-result[[2]]; single_occ.var.df<-result[[3]]
       
     } else {
-      main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, randomisation$rand_arm, randomisation$screening)
-      #Add in randomisation date to main df
-      main.df$rand_dt<-insert_vectors_with_single_screeningID(main.df, randomisation$rand_dt, randomisation$screening)
+      if (!('event_name' %in% colnames(df))){
+        id_cols=c("screening", "event_id")
+      }
+      
+      result<-merge_or_insert(main.df, df.text.name, df, c(id_cols,df_spec_cols), single_occ.var, single_occ.var.df)
+      main.df<-as.data.frame(result[[1]]); single_occ.var<-result[[2]]; single_occ.var.df<-result[[3]]
     }
-    for (i in 1:length(single_occ.var)){
-      var<-single_occ.var[i]
-      df.text.name<-single_occ.var.df[i]
-      main.df<-cbind(main.df, insert_vectors_with_single_screeningID(
-        main.df,
-        get(df.text.name)[!duplicated(get(df.text.name)$screening) ,var],
-        get(df.text.name)[!duplicated(get(df.text.name)$screening), c('screening')])
-      )
-      colnames(main.df)<-ifelse(colnames(main.df)!=tail(colnames(main.df), 1),
-                                colnames(main.df),
-                                var)
-    }
+  }
+}
+
+#Add in adverse events
+
+
+
+
+
+#Add in randomisation allocation to main df - rand_arm is dummy, otherwise randomisation$rand_arm
+if (blinded=='y'){
+  # Dummy Randomisation (if blinded)-----------------------------------------------------
+  set.seed(2602)
+  rand_arm<-sample(1:number.arms, length(unique(main.df$screening)), replace = TRUE, prob=rep(1/number.arms, number.arms))
+  main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, rand_arm, unique(main.df$screening))
+  
+} else {
+  main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, randomisation$rand_arm, randomisation$screening)
+  #Add in randomisation date to main df
+  main.df$rand_dt<-insert_vectors_with_single_screeningID(main.df, randomisation$rand_dt, randomisation$screening)
+}
+
+for (i in 1:length(single_occ.var)){
+  var<-single_occ.var[i]
+  
+  if (var %in% renamed){
+    df.text.name<-single_occ.var.df[i]
+    original_var<-stringr::str_remove(var, paste('_', df.text.name, sep=''))
+    main.df<-cbind(main.df, insert_vectors_with_single_screeningID(
+      main.df,
+      get(df.text.name)[!duplicated(get(df.text.name)$screening) ,original_var],
+      get(df.text.name)[!duplicated(get(df.text.name)$screening), c('screening')])
+    )
+    colnames(main.df)<-ifelse(colnames(main.df)!=tail(colnames(main.df), 1),
+                              colnames(main.df),
+                              var)
     
-    
-    #Add site in
-    if (!('site' %in% colnames(main.df))) {
-      main.df$site<-insert_vectors_with_single_screeningID(main.df,
-                                                         visit_completion$site[!duplicated(visit_completion$screening)],
-                                                         visit_completion$screening[!duplicated(visit_completion$screening)])
-    }
+  } else {
+    df.text.name<-single_occ.var.df[i]
+    main.df<-cbind(main.df, insert_vectors_with_single_screeningID(
+      main.df,
+      get(df.text.name)[!duplicated(get(df.text.name)$screening) ,var],
+      get(df.text.name)[!duplicated(get(df.text.name)$screening), c('screening')])
+    )
+    colnames(main.df)<-ifelse(colnames(main.df)!=tail(colnames(main.df), 1),
+                              colnames(main.df),
+                              var)
+  }
+}
+
+
+#Add site in
+if (!('site' %in% colnames(main.df))) {
+  main.df$site<-insert_vectors_with_single_screeningID(main.df,
+                                                       visit_completion$site[!duplicated(visit_completion$screening)],
+                                                       visit_completion$screening[!duplicated(visit_completion$screening)])
+
 
   return(main.df)
 }
