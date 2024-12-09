@@ -33,11 +33,11 @@
 
 
 merge_or_insert<-function(main.df, df.text.name, df, variable_s, single_occ.var, single_occ.var.df){
-    if (all(df$event_name==df$event_name[1]) & !all((grepl('adverse', df$event_name)))){
+    if (all(df$event_name==df$event_name[1]) & !(grepl('adverse', df.text.name))){
       single_occ.var=append(single_occ.var, variable_s[!(variable_s %in% standard.set.column)])
       single_occ.var.df=append(single_occ.var.df, rep(df.text.name, length(variable_s[!(variable_s %in% standard.set.column)])))
       
-    } else if (all(grepl('adverse', df$event_name))) {
+    } else if (grepl('adverse', df.text.name)) {
       
       ae_event_name<-c()
       for (id in unique(df$screening)){
