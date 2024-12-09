@@ -32,7 +32,7 @@
 
 
 
-merge_or_insert<-function(main.df, df.text.name, df, variable_s, single_occ.var, single_occ.var.df, id_cols){
+merge_or_insert<-function(main.df, df.text.name, df, variable_s, single_occ.var, single_occ.var.df){
     if (all(df$event_name==df$event_name[1]) & !all((grepl('adverse', df$event_name)))){
       single_occ.var=append(single_occ.var, variable_s[!(variable_s %in% standard.set.column)])
       single_occ.var.df=append(single_occ.var.df, rep(df.text.name, length(variable_s[!(variable_s %in% standard.set.column)])))
@@ -54,7 +54,7 @@ merge_or_insert<-function(main.df, df.text.name, df, variable_s, single_occ.var,
       
     } else {
       main.df<-merge(main.df,
-                     df[ , c(id_cols, variable_s)],
+                     df[ , variable_s],
                      by=c("screening", "event_id", 'event_name'), all = TRUE)
     }
   return(list(main.df, single_occ.var, single_occ.var.df))
