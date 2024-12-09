@@ -193,7 +193,7 @@ if (!('site' %in% colnames(main.df))) {
                                                        visit_completion$site[!duplicated(visit_completion$screening)],
                                                        visit_completion$screening[!duplicated(visit_completion$screening)])
 
-
+}
   return(main.df)
 }
 
