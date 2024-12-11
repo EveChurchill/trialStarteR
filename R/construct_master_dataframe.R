@@ -198,7 +198,7 @@ construct_master_dataframe<-function(variable.details.df,
   #Add site in
   main.df$site<-insert_vectors_with_single_screeningID(
         main.df,
-        get(name.of.visit.df)[!duplicated(get(name.of.visit.df)$screening) , site],
+        get(name.of.visit.df)[!duplicated(get(name.of.visit.df)$screening) , c('site')],
         get(name.of.visit.df)[!duplicated(get(name.of.visit.df)$screening), c('screening')])
     
 
