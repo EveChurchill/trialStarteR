@@ -115,7 +115,7 @@ construct_master_dataframe<-function(variable.details.df,
       }
 
       #Change event names from Baseline participants to Baseline
-      if (grepl('participants', df$event_name)) {
+      if (any(grepl('participants', df$event_name))) {
         df$event_name<-str_remove(pattern= ' participants', df$event_name)
         }
       
