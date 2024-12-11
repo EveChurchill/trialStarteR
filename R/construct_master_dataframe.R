@@ -193,7 +193,7 @@ construct_master_dataframe<-function(variable.details.df,
                                 var)
     }
   }
-  main.df<-main.df[, grepl('site.', colnames(main.df))]
+  main.df<-main.df[, !grepl('site.', colnames(main.df))]
   
   #Add site in
   main.df$site<-insert_vectors_with_single_screeningID(
