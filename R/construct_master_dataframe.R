@@ -113,11 +113,6 @@ construct_master_dataframe<-function(variable.details.df,
       } else {
         df<-get(df.text.name)[order(get(df.text.name)$screening), ]
       }
-
-      #Change event names from Baseline participants to Baseline
-      if (any(grepl('participants', df$event_name))) {
-        df$event_name<-str_remove(pattern= ' participants', df$event_name)
-        }
       
       
       #If all
