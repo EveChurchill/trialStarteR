@@ -19,6 +19,20 @@ construct_screening_table<-function(trial.data, var.spec=variable.details.df, po
 
   all.variables.ordered<-suffix_replacement_refInput(all.variables.ordered)
 
+    if ('all' %in% all.variables.ordered) {
+    stop('All variables in a dataframe are included in the baseline table. Please specify individually and rerun trial framework')
+  }
+  
+  
+  duplicated.vars<-all.variables.ordered[duplicated(all.variables.ordered)]
+  for (v in duplicated.vars) {
+    all.variables.ordered[all.variables.ordered==v]<-paste(v,
+                                                           var.spec$DfProspectName[
+                                                             var.spec$VariableProspectName==v],
+                                                           sep='_'
+                                                           )
+  }
+
   #Get continous and categorical variables ready for summaries and check and modify duplicate names
   continuous<-var.spec$VariableProspectName[var.spec$DataType=='continuous']
   continuous<-continuous[continuous %in% all.variables.ordered]
