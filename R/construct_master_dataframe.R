@@ -189,16 +189,16 @@ construct_master_dataframe<-function(variable.details.df,
                                 var)
     }
   }
-  
+  main.df<-main.df[, grepl('site.', colnames(main.df))]
   
   #Add site in
-  if (!('site' %in% colnames(main.df))) {
-    main.df$site<-insert_vectors_with_single_screeningID(main.df,
-                                                         visit_completion$site[!duplicated(visit_completion$screening)],
-                                                         visit_completion$screening[!duplicated(visit_completion$screening)])
+  main.df$site<-insert_vectors_with_single_screeningID(
+        main.df,
+        get(name.of.visit.df)[!duplicated(get(name.of.visit.df)$screening) , site],
+        get(name.of.visit.df)[!duplicated(get(name.of.visit.df)$screening), c('screening')])
     
-  }
-  
+
+
   list2env(master, envir = .GlobalEnv)
   
   return(main.df)
