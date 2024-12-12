@@ -87,6 +87,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
   # Dataframe for results ---------------------------------------------------
 
   columnnames.summaries<-c(
+    'Category',
     'Test/Form',
     'Summary Measure',
     arm.names,
@@ -135,7 +136,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
     return(list(n.obsv, mns, mdns, sds, iqrs, min.v, max.v))
   }
 
-  cat.summ_to_string<-function(categorical.data.name, dataframe.name, item.text.name){
+  cat.summ_to_string<-function(categorical.data.name, dataframe.name, item.text.name, cat.table.name){
     var.data<-as.factor(unlist(dataframe.name[ , c(categorical.data.name)]))
 
     arm.data<-list()
@@ -154,6 +155,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
     row.text.vector<-list();label=1
 
     row.text.vector[[label]]<-c(
+      cat.table.name,
       item.text.name, 'N (%)',
       paste(
         unlist(n.obsv),
@@ -162,7 +164,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
         '%)', sep=""))
     label=label+1
     for (level in names(summs[[N.Arms+1]])) {
-      row.text.vector[[label]]<-c(level,
+      row.text.vector[[label]]<-c(cat.table.name, level,
                                            'N (%)',
                                            paste(
                                              unlist(summs)[which(names(unlist(summs))==level)],
@@ -185,14 +187,16 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
       data_to_log<-cont.summ_to_string(variable, characteristic_data)
 
       item.name<-var.spec$VariableTextName[var.spec$VariableProspectName==variable]
-
+      var.category.name<-ifelse(is.na(var.spec$Category[var.spec$VariableProspectName==variable]),
+                                '',
+                                var.spec$Category[var.spec$VariableProspectName==variable])
       #Append all to summary_table.presented
-      summary_table.presented[row.n , ]<-c(item.name, 'N (%)',
+      summary_table.presented[row.n , ]<-c(var.category.name, item.name, 'N (%)',
                                            paste(data_to_log[[1]], ' (', percentage_summaries_perArmOverall(unlist(data_to_log[[1]])) , '%)', sep=""))
 
-      summary_table.presented[row.n+1 , ]<-c('', "  Mean (SD)", paste(data_to_log[[2]], ' (', data_to_log[[4]], ')', sep=""))
-      summary_table.presented[row.n+2 , ]<-c('', "  Median (IQR)", paste(data_to_log[[3]], data_to_log[[5]], sep=" "))
-      summary_table.presented[row.n+3, ]<-c('', "  Min, Max", paste(data_to_log[[6]], ', ',data_to_log[[7]], sep=""))
+      summary_table.presented[row.n+1 , ]<-c(var.category.name, "  Mean (SD)", paste(data_to_log[[2]], ' (', data_to_log[[4]], ')', sep=""))
+      summary_table.presented[row.n+2 , ]<-c(var.category.name, "  Median (IQR)", paste(data_to_log[[3]], data_to_log[[5]], sep=" "))
+      summary_table.presented[row.n+3, ]<-c(var.category.name, "  Min, Max", paste(data_to_log[[6]], ', ',data_to_log[[7]], sep=""))
 
       row.n=row.n+4
 
@@ -201,7 +205,10 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
       # Categorical Summaries ----------------------------------------------------
 
       item.name<-var.spec$VariableTextName[var.spec$VariableProspectName==variable]
-      row.text<-cat.summ_to_string(variable, characteristic_data, item.name)
+      var.category.name<-ifelse(is.na(var.spec$Category[var.spec$VariableProspectName==variable]),
+                          '',
+                          var.spec$Category[var.spec$VariableProspectName==variable])
+      row.text<-cat.summ_to_string(variable, characteristic_data, item.name, var.category.name)
 
       for (item in 1:length(row.text)) {
         summary_table.presented[row.n , ]<-row.text[[item]]
