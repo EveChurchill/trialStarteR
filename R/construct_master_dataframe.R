@@ -197,8 +197,32 @@ construct_master_dataframe<-function(variable.details.df,
         get(name.of.visit.df)[!duplicated(get(name.of.visit.df)$screening), c('screening')])
     
 
-
+#Return updated dataframes  to global environment
   list2env(master, envir = .GlobalEnv)
+
+  #Make sure all labels are wrangles with lookups
+for (name in names(main.df)[!(names(main.df) %in% standard.set.column)]) {
+  if (is.null(levels(main.df[ ,c(name)]))) {
+    if (name %in% lookups$field) {
+      main.df[, c(name)] <- factor(main.df[, c(name)],
+                            levels = lookups$code[lookups$field==name],
+                            labels = lookups$label[lookups$field==name]
+      )
+    } else {
+      name.splt<-stringr::str_split(name, '_')[[1]]
+      for (i in 1:length(name.splt)) {
+        n=paste(name.splt[1:i], collapse='_')
+        if (n %in% lookups$field) {
+          main.df[, c(name)] <- factor(main.df[, c(name)],
+                                         levels = lookups$code[lookups$field==n],
+                                         labels = lookups$label[lookups$field==n]
+          )
+        }
+      }
+    }
+  }
+}
+  
   
   return(main.df)
 }
