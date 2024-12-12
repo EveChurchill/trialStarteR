@@ -194,9 +194,9 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
       summary_table.presented[row.n , ]<-c(var.category.name, item.name, 'N (%)',
                                            paste(data_to_log[[1]], ' (', percentage_summaries_perArmOverall(unlist(data_to_log[[1]])) , '%)', sep=""))
 
-      summary_table.presented[row.n+1 , ]<-c(var.category.name, "  Mean (SD)", paste(data_to_log[[2]], ' (', data_to_log[[4]], ')', sep=""))
-      summary_table.presented[row.n+2 , ]<-c(var.category.name, "  Median (IQR)", paste(data_to_log[[3]], data_to_log[[5]], sep=" "))
-      summary_table.presented[row.n+3, ]<-c(var.category.name, "  Min, Max", paste(data_to_log[[6]], ', ',data_to_log[[7]], sep=""))
+      summary_table.presented[row.n+1 , ]<-c(var.category.name,'', "  Mean (SD)", paste(data_to_log[[2]], ' (', data_to_log[[4]], ')', sep=""))
+      summary_table.presented[row.n+2 , ]<-c(var.category.name,'', "  Median (IQR)", paste(data_to_log[[3]], data_to_log[[5]], sep=" "))
+      summary_table.presented[row.n+3, ]<-c(var.category.name, '',"  Min, Max", paste(data_to_log[[6]], ', ',data_to_log[[7]], sep=""))
 
       row.n=row.n+4
 
