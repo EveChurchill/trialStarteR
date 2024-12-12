@@ -158,7 +158,8 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
     row.text.vector[[label]]<-c(
       cat.table.name,
       sub.cat.name,
-      item.text.name, 'N (%)',
+      item.text.name, 
+      'N(%)',
       paste(
         unlist(n.obsv),
         ' (',
@@ -166,8 +167,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
         '%)', sep=""))
     label=label+1
     for (level in names(summs[[N.Arms+1]])) {
-      row.text.vector[[label]]<-c(cat.table.name, sub.cat.name, item.text.name, level,
-                                           'N (%)',
+      row.text.vector[[label]]<-c(cat.table.name, sub.cat.name, '', level,
                                            paste(
                                              unlist(summs)[which(names(unlist(summs))==level)],
                                              ' (',
