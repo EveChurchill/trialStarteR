@@ -167,6 +167,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
         '%)', sep=""))
     label=label+1
     for (level in names(summs[[N.Arms+1]])) {
+      if (unlist(summs)[which(names(unlist(summs))==level)][N.Arms+1]!=0) {
       row.text.vector[[label]]<-c(cat.table.name, sub.cat.name, '', level,
                                            paste(
                                              unlist(summs)[which(names(unlist(summs))==level)],
@@ -175,6 +176,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
                                                unlist(summs)[which(names(unlist(summs))==level)], id.list.object),
                                              '%)', sep=""))
       label=label+1
+      }
     }
 
     return(row.text.vector)
