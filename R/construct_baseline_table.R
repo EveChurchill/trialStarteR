@@ -111,7 +111,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
     for (i in 1:N.Arms){
       arm.data[[i]]<-var.data[dataframe.name$screening %in% population.list.obj[[i]] ]
     }
-    arm.data[[i+1]]<-var.data
+    arm.data[[i+1]]<-var.data[dataframe.name$screening %in% unlist(population.list.obj)]
 
     arm.data.lengths<-unlist(lapply(arm.data, length))
     arm.data.lengths.cs<-c(0, cumsum(arm.data.lengths))[1:(N.Arms+1)]
@@ -144,8 +144,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
     for (i in 1:N.Arms){
       arm.data[[i]]<-var.data[dataframe.name$screening %in% population.list.obj[[i]] ]
     }
-    arm.data[[i+1]]<-var.data
-
+    arm.data[[i+1]]<-var.data[dataframe.name$screening %in% unlist(population.list.obj)]
     arm.data.lengths<-unlist(lapply(arm.data, length))
     arm.data.lengths.cs<-c(0, cumsum(arm.data.lengths))[1:(N.Arms+1)]
 
