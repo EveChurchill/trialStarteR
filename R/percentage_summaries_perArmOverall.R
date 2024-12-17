@@ -18,6 +18,7 @@ percentage_summaries_perArmOverall<-function(n, arm.n=N.Arms, population.list.ob
   for (i in 1:N.Arms){
     percents.arms<-append(percents.arms, rd_percent(n[i], length(population.list.obj[[i]])))
   }
+  i=i+1
   percents.arms<-append(percents.arms, rd_percent(n[i], sum(unlist(lapply(population.list.obj, length)))))
   return(percents.arms)
 }
