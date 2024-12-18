@@ -161,7 +161,7 @@ construct_master_dataframe<-function(variable.details.df,
                                                                 as.Date(min(randomisation$rand_dt)),
                                                                 as.Date(max(randomisation$rand_dt)),
                                                                 by="day"),
-                                                              length(randomisation$screening),
+                                                              length(randomisation$screening)),
                                                             randomisation$screening)
   } else {
     main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, randomisation$rand_arm, randomisation$screening)
