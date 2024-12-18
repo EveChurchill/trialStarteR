@@ -154,7 +154,15 @@ construct_master_dataframe<-function(variable.details.df,
     set.seed(2602)
     rand_arm<-sample(1:number.arms, length(unique(main.df$screening)), replace = TRUE, prob=rep(1/number.arms, number.arms))
     main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, rand_arm, unique(main.df$screening))
-    
+    set.seed(2602)
+    main.df$rand_dt<-insert_vectors_with_single_screeningID(main.df,
+                                                            sample(
+                                                              seq(
+                                                                as.Date(min(randomisation$rand_dt)),
+                                                                as.Date(max(randomisation$rand_dt)),
+                                                                by="day"),
+                                                              length(randomisation$screening),
+                                                            randomisation$screening)
   } else {
     main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, randomisation$rand_arm, randomisation$screening)
     #Add in randomisation date to main df
