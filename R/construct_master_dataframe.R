@@ -45,7 +45,8 @@ construct_master_dataframe<-function(variable.details.df,
                                      blinded='y',
                                      name.of.visit.df='visit_completion',
                                      name.of.screening.df,
-                                     number.arms=N.Arms) {
+                                     number.arms=N.Arms,
+                                    field.description.df=DM.dictionary.fields) {
   single_occ.var<-c(); single_occ.var.df<-c(); renamed<-c()
   duplicated_names<-variable.details.df$VariableProspectName[
     duplicated(variable.details.df$VariableProspectName)
@@ -229,6 +230,7 @@ for (name in names(main.df)[!(names(main.df) %in% standard.set.column)]) {
       }
     }
   }
+  attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==name]
 }
   
   
