@@ -218,7 +218,7 @@ main.df$site<-insert_vectors_with_single_screeningID(
 
 
 #Return updated dataframes  to global environment
-list2env(master, envir = .GlobalEnv)
+list2env(master[names(master)!=lookups], envir = .GlobalEnv)
 
 #Make sure all labels are wrangles with lookups
 for (name in names(main.df)[!(names(main.df) %in% standard.set.column)]) {
