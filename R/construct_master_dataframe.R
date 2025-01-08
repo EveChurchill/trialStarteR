@@ -178,6 +178,10 @@ construct_master_dataframe<-function(variable.details.df,
                                                             randomisation$screening)
   } else {
     main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, randomisation$rand_arm, randomisation$screening)
+    cds = lookups$code[lookups$field=='rand_arm']
+    lbls = lookups$label[lookups$field=='rand_arm']
+        
+    main.df$rand_arm <- as.factor(ifelse(is.na(main.df$rand_arm), NA, lbls[match(main.df$rand_arm, cds)]))
     #Add in randomisation date to main df
     main.df$rand_dt<-insert_vectors_with_single_screeningID(main.df, randomisation$rand_dt, randomisation$screening)
   }
