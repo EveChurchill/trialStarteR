@@ -221,38 +221,38 @@ main.df$site<-insert_vectors_with_single_screeningID(
 list2env(master, envir = .GlobalEnv)
 
 #Make sure all labels are wrangles with lookups
-#for (name in names(main.df)[!(names(main.df) %in% standard.set.column)]) {
-#    if (name %in% lookups$Identifier) {
-#      if (is.null(levels(main.df[,c(name)]))) {
-#      main.df[, c(name)] <- factor(main.df[, c(name)],
-#                                   levels = lookups$code[lookups$Identifier==name],
-#                                   labels = lookups$label[lookups$Identifier==name]
-#      )
-#      }
-#      attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==name][1]#
-#
-#  } else if (name %in% field.description.df$Identifier) {
-#      attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==name][1]
-#      
-#  } else {
-#      name.splt<-stringr::str_split(name, '_')[[1]]
-#      for (i in 1:length(name.splt)) {
-#        n=paste(name.splt[1:i], collapse='_')
-#        n.df<-paste(
-#          name.splt[
-#            ifelse(i==length(name.splt), i, (i+1)):length(name.splt)
-#          ], collapse='_')
-#        if (n %in% lookups$field) {
-#          main.df[, c(name)] <- factor(main.df[, c(name)],
-#                                       levels = lookups$code[lookups$field==n & lookups$form==n.df],
-#                                       labels = lookups$label[lookups$field==n & lookups$form==n.df]
-#          )
-#          attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==n &
-#                                                                            field.description.df$Form==n.df]
-#        }
-#      }
-#  }
-#}  
+for (name in names(main.df)[!(names(main.df) %in% standard.set.column)]) {
+    if (name %in% lookups$Identifier) {
+      if (is.null(levels(main.df[,c(name)]))) {
+      main.df[, c(name)] <- factor(main.df[, c(name)],
+                                   levels = lookups$code[lookups$Identifier==name],
+                                   labels = lookups$label[lookups$Identifier==name]
+      )
+      }
+      attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==name][1]#
+
+  } else if (name %in% field.description.df$Identifier) {
+      attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==name][1]
+      
+  } else {
+      name.splt<-stringr::str_split(name, '_')[[1]]
+      for (i in 1:length(name.splt)) {
+        n=paste(name.splt[1:i], collapse='_')
+        n.df<-paste(
+          name.splt[
+            ifelse(i==length(name.splt), i, (i+1)):length(name.splt)
+          ], collapse='_')
+        if (n %in% lookups$field) {
+          main.df[, c(name)] <- factor(main.df[, c(name)],
+                                       levels = lookups$code[lookups$field==n & lookups$form==n.df],
+                                       labels = lookups$label[lookups$field==n & lookups$form==n.df]
+          )
+          attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==n &
+                                                                            field.description.df$Form==n.df]
+        }
+      }
+  }
+}  
   return(main.df)
 }
 
