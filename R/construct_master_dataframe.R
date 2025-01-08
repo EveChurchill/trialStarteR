@@ -235,7 +235,7 @@ construct_master_dataframe<-function(variable.details.df,
   lookups$form<-trimws(gsub("[[:punct:][:space:]]+", "_", lookups$form), which = 'left', whitespace = '_')
   
   #Make sure all labels are wrangles with lookups
-  for (name in names(main.df)[!(names(main.df) %in% standard.set.column)]) {
+  for (name in names(main.df)[!(names(main.df) %in% c(standard.set.column, 'rand_arm'))]) {
     if (name %in% lookups$field) {
       if (is.null(levels(main.df[,c(name)]))) {
         cds = lookups$code[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]]
