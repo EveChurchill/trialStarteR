@@ -220,16 +220,25 @@ main.df$site<-insert_vectors_with_single_screeningID(
 #Return updated dataframes  to global environment
 list2env(master[names(master)!=lookups], envir = .GlobalEnv)
 
+
+#Convert lookups form name to R environment name
+lookups$form<-str_remove(lookups$form, ".csv") %>%
+  str_replace_all("( - )| ", "_") %>%
+  str_remove_all("\\(|\\)|-") %>%
+  str_to_lower()
+
+lookups$form<-trimws(gsub("[[:punct:][:space:]]+", "_", lookups$form), which = 'left', whitespace = '_')
+
 #Make sure all labels are wrangles with lookups
 for (name in names(main.df)[!(names(main.df) %in% standard.set.column)]) {
-    if (name %in% lookups$Identifier) {
+    if (name %in% lookups$field) {
       if (is.null(levels(main.df[,c(name)]))) {
       main.df[, c(name)] <- factor(main.df[, c(name)],
-                                   levels = lookups$code[lookups$Identifier==name],
-                                   labels = lookups$label[lookups$Identifier==name]
+                                   levels = lookups$code[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName=='outcome'][1]],
+                                   labels = lookups$label[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName=='outcome'][1]]
       )
       }
-      attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==name][1]#
+      attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==name][1]
 
   } else if (name %in% field.description.df$Identifier) {
       attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==name][1]
@@ -252,7 +261,8 @@ for (name in names(main.df)[!(names(main.df) %in% standard.set.column)]) {
         }
       }
   }
-}  
+}
+
   return(main.df)
 }
 
