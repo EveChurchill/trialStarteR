@@ -233,8 +233,8 @@ for (name in names(main.df)[!(names(main.df) %in% standard.set.column)]) {
     if (name %in% lookups$field) {
       if (is.null(levels(main.df[,c(name)]))) {
       main.df[, c(name)] <- factor(main.df[, c(name)],
-                                   levels = lookups$code[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName=='outcome'][1]],
-                                   labels = lookups$label[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName=='outcome'][1]]
+                                   levels = lookups$code[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]],
+                                   labels = lookups$label[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]]
       )
       }
       attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==name][1]
