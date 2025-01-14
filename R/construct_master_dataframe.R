@@ -70,8 +70,8 @@ construct_master_dataframe<-function(variable.details.df,
   id_cols<-c("screening", "event_id","event_name")
   id_cols<-id_cols[(id_cols %in% colnames(get(name.of.visit.df))) & (id_cols %in% colnames(get(name.of.screening.df)))]
   #Check visit df and screening df for other variables to add
-  visit_cols<-variable.details.df$VariableProspectName[variable.details.df$DfProspectName==name.of.visit.df]
-  screening_cols<-variable.details.df$VariableProspectName[variable.details.df$DfProspectName==name.of.screening.df]
+  visit_cols<-suffix_replacement_refInput(variable.details.df$VariableProspectName[variable.details.df$DfProspectName==name.of.visit.df])
+  screening_cols<-suffix_replacement_refInput(variable.details.df$VariableProspectName[variable.details.df$DfProspectName==name.of.screening.df])
   #Visit completion is always available in newer trials,
   #so this is the first dataframe to be included
   main.df<-merge(get(name.of.visit.df)[ , c(id_cols, visit_cols)],
