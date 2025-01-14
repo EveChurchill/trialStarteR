@@ -238,7 +238,7 @@ construct_master_dataframe<-function(variable.details.df,
   
   #Make sure all labels are wrangles with lookups
   for (name in names(main.df)[!(names(main.df) %in% c(standard.set.column, 'rand_arm'))]) {
-    if (name %in% lookups$field & !(is.na(lookups$code[lookups$field==name]))) {
+    if (name %in% lookups$field & !all(is.na(lookups$code[lookups$field==name]))) {
       if (is.null(levels(main.df[,c(name)]))) {
         cds = lookups$code[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]]
         lbls = lookups$label[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]]
