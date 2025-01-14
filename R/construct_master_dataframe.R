@@ -177,7 +177,7 @@ construct_master_dataframe<-function(variable.details.df,
                                                                 as.Date('2024-12-31'),
                                                                 by="day"),
                                                               length(unique(get(name.of.visit.df)$screening))),
-                                                            unique(get(name.of.visit.df)$screening)))
+                                                            unique(get(name.of.visit.df)$screening))
   } else {
     main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, randomisation$rand_arm, randomisation$screening)
     cds = lookups$code[lookups$field=='rand_arm']
