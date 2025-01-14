@@ -68,7 +68,7 @@ construct_master_dataframe<-function(variable.details.df,
   
   #These columns will be used to map the dataframes together when merging
   id_cols<-c("screening", "event_id","event_name")
-  
+  id_cols<-id_cols[(id_cols %in% colnames(get(name.of.visit.df))) & (id_cols %in% colnames(get(name.of.screening.df)))]
   #Check visit df and screening df for other variables to add
   visit_cols<-variable.details.df$VariableProspectName[variable.details.df$DfProspectName==name.of.visit.df]
   screening_cols<-variable.details.df$VariableProspectName[variable.details.df$DfProspectName==name.of.screening.df]
@@ -147,6 +147,8 @@ construct_master_dataframe<-function(variable.details.df,
       } else {
         if (!('event_name' %in% colnames(df))){
           id_cols=c("screening", "event_id")
+        } else if (!('event_id' %in% colnames(df))){
+          id_cols<-c('screening', 'event_name')
         }
         
         result<-merge_or_insert(main.df, df.text.name, df, c(id_cols,df_spec_cols), single_occ.var, single_occ.var.df)
