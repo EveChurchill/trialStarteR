@@ -49,7 +49,7 @@ construct_master_dataframe<-function(variable.details.df,
                                     field.description.df=DM.dictionary.fields) {
 
  
-  #Keep only fields which are in the variable.details.df
+    #Keep only fields which are in the variable.details.df
   field.description.df$Form<-str_remove(field.description.df$Form, ".csv") %>%
     str_replace_all("( - )| ", "_") %>%
     str_remove_all("\\(|\\)|-") %>%
@@ -75,7 +75,7 @@ construct_master_dataframe<-function(variable.details.df,
   #Visit completion is always available in newer trials,
   #so this is the first dataframe to be included
   main.df<-merge(get(name.of.visit.df)[ , c(id_cols, visit_cols)],
-                 get(name.of.screening.df)[, c(id_cols, screening_cols)], by=id_cols, all=TRUE)
+                 get(name.of.screening.df)[, c(id_cols)], by=id_cols, all=TRUE)
   
   #Loop through each dataframe and add the specified columns to the main df
   for (df.text.name in req.dataframes[!(req.dataframes %in% c(name.of.visit.df, name.of.screening.df))]) {
@@ -182,12 +182,13 @@ construct_master_dataframe<-function(variable.details.df,
     main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, randomisation$rand_arm, randomisation$screening)
     cds = lookups$code[lookups$field=='rand_arm']
     lbls = lookups$label[lookups$field=='rand_arm']
-        
+    
     main.df$rand_arm <- as.factor(ifelse(is.na(main.df$rand_arm), NA, lbls[match(main.df$rand_arm, cds)]))
     #Add in randomisation date to main df
     main.df$rand_dt<-insert_vectors_with_single_screeningID(main.df, randomisation$rand_dt, randomisation$screening)
   }
-  
+  single_occ.var<-c(screening_cols, single_occ.var)
+  single_occ.var.df<-c(rep(name.of.screening.df, length(screening_cols)), single_occ.var.df)
   for (i in 1:length(single_occ.var)){
     var<-single_occ.var[i]
     
@@ -270,7 +271,6 @@ construct_master_dataframe<-function(variable.details.df,
       }
     }
   }
-
   return(main.df)
 }
 
