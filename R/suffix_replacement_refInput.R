@@ -22,16 +22,20 @@
 
 suffix_replacement_refInput<-function(column.name.vector){
   if (any(grepl('suffix', column.name.vector))){
-    df.text.name<-variable.details.df$DfProspectName[variable.details.df$VariableProspectName==column.name.vector[1]]
-    suffix.idx<-which(grepl('suffix', column.name.vector))
-
-    #Remove suffix from the text
-    suffix_text<-stringr::str_remove_all(column.name.vector[suffix.idx], 'suffix')
-    #Updated variables
-    column.name.vector<-column.name.vector[-c(suffix.idx)]
-    for (s.t in suffix_text) {
-      column.name.vector<-append(column.name.vector, colnames(get(df.text.name))[grepl(s.t, colnames(get(df.text.name)))])
+    df.text.names<-variable.details.df$DfProspectName[match(column.name.vector, variable.details.df$VariableProspectName)]
+  
+    new.column.names<-c()
+    for (i in 1:length(column.name.vector)) {
+      if (grepl('suffix', column.name.vector[i])) {
+        s.t<-stringr::str_remove_all(column.name.vector[i], 'suffix')
+        df.text.name=df.text.names[i]
+        new.column.names<-append(new.column.names, colnames(get(df.text.name))[grepl(s.t, colnames(get(df.text.name)))])
+      } else {
+        new.column.names<-append(new.column.names, column.name.vector[i])
+      }
     }
+  } else {
+    new.column.names<-column.name.vector
   }
-  return(column.name.vector)
+  return(new.column.names)
 }
