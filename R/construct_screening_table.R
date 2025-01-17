@@ -14,7 +14,11 @@
 #'
 #' @export
 
-construct_screening_table<-function(trial.data, var.spec=variable.details.df, population.list.obj=itt){
+construct_screening_table<-function(trial.data,
+                                    var.spec=variable.details.df,
+                                    id_cols=c("screening", "event_name", "event_id"),
+                                    population.list.obj=itt){
+
   all.variables.ordered<-var.spec$VariableProspectName[var.spec$screening_yn=='y']
 
   all.variables.ordered<-suffix_replacement_refInput(all.variables.ordered)
@@ -22,8 +26,8 @@ construct_screening_table<-function(trial.data, var.spec=variable.details.df, po
     if ('all' %in% all.variables.ordered) {
     stop('All variables in a dataframe are included in the baseline table. Please specify individually and rerun trial framework')
   }
-  
-  
+
+
   duplicated.vars<-all.variables.ordered[duplicated(all.variables.ordered)]
   for (v in duplicated.vars) {
     all.variables.ordered[all.variables.ordered==v]<-paste(v,
@@ -47,7 +51,7 @@ construct_screening_table<-function(trial.data, var.spec=variable.details.df, po
                      categorical)
 
   #Get baseline screening seperate for ease
-  characteristic_data<-trial.data[trial.data$event_name=='Screening', c('screening', categorical, continuous)]
+  characteristic_data<-trial.data[trial.data[ ,c(id_cols[2])]=='Screening', c(id_cols[1], categorical, continuous)]
 
   # Dataframe for results ---------------------------------------------------
 

@@ -22,7 +22,7 @@
 
 insert_vectors_with_single_screeningID<-function(input_dataframe, vector_to_allocate, correspond.indivID.vector ) {
   allocated<-c()
-  for (i in input_dataframe$screening) {
+  for (i in input_dataframe[,c(id_cols[1])]) {
     if (i %in% correspond.indivID.vector) {
       allocated<-append(allocated, vector_to_allocate[which(correspond.indivID.vector==i)])
     } else {
@@ -31,3 +31,4 @@ insert_vectors_with_single_screeningID<-function(input_dataframe, vector_to_allo
   }
   return(allocated)
 }
+

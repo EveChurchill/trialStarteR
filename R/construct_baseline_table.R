@@ -14,54 +14,59 @@
 #'
 #' @export
 
-construct_baseline_table<-function(trial.data, var.spec=variable.details.df, population.list.obj=itt, fill_baselineNAs_screening_data='n'){
+construct_baseline_table<-function(trial.data,
+                                   var.spec=variable.details.df,
+                                   id_cols=c("screening", "event_name", "event_id"),
+                                   population.list.obj=itt,
+                                   fill_baselineNAs_screening_data='n'){
+
   if (fill_baselineNAs_screening_data=='n'){
-    characteristic_data<-trial.data[trial.data$event_name=='Baseline', ]
+    characteristic_data<-trial.data[trial.data[, c(id_cols[2])]=='Baseline', ]
 
     all.variables.ordered<-var.spec$VariableProspectName[
       var.spec$baseline_yn=='y'
     ]
   } else {
-    characteristic_data<-trial.data[trial.data$event_name=='Baseline', ]
+    characteristic_data<-trial.data[trial.data[, c(id_cols[2])]=='Baseline', ]
 
     all.variables.ordered<-var.spec$VariableProspectName[
-      var.spec$baseline_yn=='y' | var.spec$baseline_yn=='y']
+      var.spec$baseline_yn=='y' | var.spec$screening_yn=='y']
 
     #replace any missing data with screening data where possible
 
-    for (id in characteristic_data$screening){
+    for (id in characteristic_data[, c(id_cols[1])]){
       #check for all baseline related fields
-      if(any(characteristic_data$event_name=='Baseline participants' & characteristic_data$screening==id)) {
+      if(any(characteristic_data[, c(id_cols[2])]=='Baseline participants' & characteristic_data[, c(id_cols[1])]==id)) {
 
         missing_data.indiv<-which(
-          is.na(characteristic_data[characteristic_data$screening==id, ])
+          is.na(characteristic_data[characteristic_data[, c(id_cols[1])]==id, ])
         )
 
-        characteristic_data[characteristic_data$screening==id, missing_data.indiv]<-
-          trial.data[trial.data$event_name=='Baseline participants' & trial.data$screening==id, missing_data.indiv]
+        characteristic_data[characteristic_data[, c(id_cols[1])]==id, missing_data.indiv]<-
+          trial.data[trial.data[, c(id_cols[2])]=='Baseline participants' & trial.data[, c(id_cols[1])]==id, missing_data.indiv]
       }
 
       #check for all screening fields
-      if(any(trial.data$event_name=='Screening' & trial.data$screening==id)) {
+      if(any(trial.data[, c(id_cols[2])]=='Screening' & trial.data[, c(id_cols[1])]==id)) {
 
         missing_data.indiv<-which(
-          is.na(characteristic_data[characteristic_data$screening==id, ])
+          is.na(characteristic_data[characteristic_data[, c(id_cols[1])]==id, ])
         )
 
-        characteristic_data[characteristic_data$screening==id, missing_data.indiv]<-
-          trial.data[trial.data$event_name=='Screening' & trial.data$screening==id, missing_data.indiv]
+        characteristic_data[characteristic_data[, c(id_cols[1])]==id, missing_data.indiv]<-
+          trial.data[trial.data[, c(id_cols[2])]=='Screening' & trial.data[, c(id_cols[1])]==id, missing_data.indiv]
       }
 
     }
   }
 
   all.variables.ordered<-suffix_replacement_refInput(all.variables.ordered)
-  
+
   if ('all' %in% all.variables.ordered) {
     stop('All variables in a dataframe are included in the baseline table. Please specify individually and rerun trial framework')
   }
-  
-  
+
+
   duplicated.vars<-all.variables.ordered[duplicated(all.variables.ordered)]
   for (v in duplicated.vars) {
     all.variables.ordered[all.variables.ordered==v]<-paste(v,
@@ -82,7 +87,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
   categorical<-ifelse(duplicated(categorical), paste(categorical, var.spec$DfProspectName[var.spec$VariableProspectName==categorical], sep=""), categorical)
 
   #Get baseline screening separate for ease
-  characteristic_data<-characteristic_data[, c('screening', categorical, continuous)]
+  characteristic_data<-characteristic_data[, c(id_col[1], categorical, continuous)]
 
   # Dataframe for results ---------------------------------------------------
 
@@ -109,9 +114,9 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
 
     arm.data<-list()
     for (i in 1:N.Arms){
-      arm.data[[i]]<-var.data[dataframe.name$screening %in% population.list.obj[[i]] ]
+      arm.data[[i]]<-var.data[dataframe.name[, c(id_cols[1])] %in% population.list.obj[[i]] ]
     }
-    arm.data[[i+1]]<-var.data[dataframe.name$screening %in% unlist(population.list.obj)]
+    arm.data[[i+1]]<-var.data[dataframe.name[, c(id_cols[1])] %in% unlist(population.list.obj)]
 
     arm.data.lengths<-unlist(lapply(arm.data, length))
     arm.data.lengths.cs<-c(0, cumsum(arm.data.lengths))[1:(N.Arms+1)]
@@ -142,9 +147,9 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
 
     arm.data<-list()
     for (i in 1:N.Arms){
-      arm.data[[i]]<-var.data[dataframe.name$screening %in% population.list.obj[[i]] ]
+      arm.data[[i]]<-var.data[dataframe.name[, c(id_cols[1])] %in% population.list.obj[[i]] ]
     }
-    arm.data[[i+1]]<-var.data[dataframe.name$screening %in% unlist(population.list.obj)]
+    arm.data[[i+1]]<-var.data[dataframe.name[, c(id_cols[1])] %in% unlist(population.list.obj)]
     arm.data.lengths<-unlist(lapply(arm.data, length))
     arm.data.lengths.cs<-c(0, cumsum(arm.data.lengths))[1:(N.Arms+1)]
 
@@ -157,7 +162,7 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
     row.text.vector[[label]]<-c(
       cat.table.name,
       sub.cat.name,
-      item.text.name, 
+      item.text.name,
       'N(%)',
       paste(
         unlist(n.obsv),
@@ -214,11 +219,11 @@ construct_baseline_table<-function(trial.data, var.spec=variable.details.df, pop
       var.category.name<-ifelse(is.na(var.spec$Category[var.spec$VariableProspectName==variable]),
                           '',
                           var.spec$Category[var.spec$VariableProspectName==variable])
-      
+
       sub.cat.name<-ifelse(is.na(var.spec$SubCategory[var.spec$VariableProspectName==variable]),
                                 '',
                                 var.spec$SubCategory[var.spec$VariableProspectName==variable])
-      
+
       row.text<-cat.summ_to_string(variable, characteristic_data, item.name, var.category.name, sub.cat.name)
 
       for (item in 1:length(row.text)) {

@@ -32,32 +32,32 @@
 
 
 
-merge_or_insert<-function(main.df, df.text.name, df, variable_s, single_occ.var, single_occ.var.df){
-    merge.ids<-c("screening", "event_id", 'event_name')[c("screening", "event_id", 'event_name')  %in% colnames(df)]
-    if (all(df$event_name==df$event_name[1]) & !(grepl('adverse', df.text.name))){
-      single_occ.var=append(single_occ.var, variable_s[!(variable_s %in% standard.set.column)])
-      single_occ.var.df=append(single_occ.var.df, rep(df.text.name, length(variable_s[!(variable_s %in% standard.set.column)])))
-      
-    } else if (grepl('adverse', df.text.name)) {
-      
-      ae_event_name<-c()
-      for (id in unique(df$screening)){
-        ae_event_name<-append(ae_event_name,
-                              paste('Adverse Event', 1:sum(df$screening==id), sep=" "))
-      }
-      df$event_name<-ae_event_name
-      
-      #+ Adverse Events
-      main.df<- dplyr::bind_rows(main.df,
-                                 
-                                 df[ , variable_s])
-      
-      
-    } else {
-      main.df<-merge(main.df,
-                     df[ , variable_s],
-                     by=merge.ids, all = TRUE)
+merge_or_insert<-function(main.df, df.text.name, df, id_cols, variable_s, single_occ.var, single_occ.var.df){
+  merge.ids<-id_cols[(id_cols  %in% colnames(df)) & (id_cols %in% colnames(main.df))]
+
+  if (all(df[ , c(id_cols[2])]==df[ , c(id_cols[2])][1]) & !(grepl('adverse', df.text.name))){
+    single_occ.var=append(single_occ.var, variable_s[!(variable_s %in% standard.set.column)])
+    single_occ.var.df=append(single_occ.var.df, rep(df.text.name, length(variable_s[!(variable_s %in% standard.set.column)])))
+
+  } else if (grepl('adverse', df.text.name)) {
+
+    ae_event_name<-c()
+    for (id in unique(df[ , c(id_cols[1])])){
+      ae_event_name<-append(ae_event_name,
+                            paste('Adverse Event', 1:sum(df[ , c(id_cols[1])]==id), sep=" "))
     }
+    df[ , c(id_cols[2])]<-ae_event_name
+
+    #+ Adverse Events
+    main.df<- dplyr::bind_rows(main.df,
+
+                               df[ ,c(merge.ids, variable_s)])
+
+
+  } else {
+    main.df<-merge(main.df,
+                   df[ , c(merge.ids, variable_s)],
+                   by=merge.ids, all = TRUE)
+  }
   return(list(main.df, single_occ.var, single_occ.var.df))
 }
-
