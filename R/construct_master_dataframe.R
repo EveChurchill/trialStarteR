@@ -166,9 +166,10 @@ construct_master_dataframe<-function(variable.details.df,
     # Dummy Randomisation (if blinded)-----------------------------------------------------
     set.seed(2602)
     rand_arm<-sample(1:number.arms, length(unique(main.df[ , c(id_cols[1])])), replace = TRUE, prob=rep(1/number.arms, number.arms))
-    main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, rand_arm, unique(main.df[ , c(id_cols[1])]))
+    main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, id_cols, rand_arm, unique(main.df[ , c(id_cols[1])]))
     set.seed(2602)
     main.df$rand_dt<-insert_vectors_with_single_screeningID(main.df,
+                                                             id_cols,
                                                             sample(
                                                               seq(
                                                                 as.Date('2024-01-01'),
@@ -177,13 +178,13 @@ construct_master_dataframe<-function(variable.details.df,
                                                               length(unique(get(name.of.visit.df)[ , c(id_cols[1])]))),
                                                             unique(get(name.of.visit.df)[ , c(id_cols[1])]))
   } else {
-    main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, randomisation$rand_arm, randomisation[ , c(id_cols[1])])
+    main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, id_cols, randomisation$rand_arm, randomisation[ , c(id_cols[1])])
     cds = lookups$code[lookups$field=='rand_arm']
     lbls = lookups$label[lookups$field=='rand_arm']
 
     main.df$rand_arm <- as.factor(ifelse(is.na(main.df$rand_arm), NA, lbls[match(main.df$rand_arm, cds)]))
     #Add in randomisation date to main df
-    main.df$rand_dt<-insert_vectors_with_single_screeningID(main.df, randomisation$rand_dt, randomisation[ , c(id_cols[1])])
+    main.df$rand_dt<-insert_vectors_with_single_screeningID(main.df, id_cols, randomisation$rand_dt, randomisation[ , c(id_cols[1])])
   }
 
   for (i in 1:length(single_occ.var)){
@@ -194,6 +195,7 @@ construct_master_dataframe<-function(variable.details.df,
       original_var<-stringr::str_remove(var, paste('_', df.text.name, sep=''))
       main.df<-cbind(main.df, insert_vectors_with_single_screeningID(
         main.df,
+         id_cols,
         get(df.text.name)[!duplicated(get(df.text.name)[ , c(id_cols[1])]) ,original_var],
         get(df.text.name)[!duplicated(get(df.text.name)[ , c(id_cols[1])]), c(id_cols[1])])
       )
@@ -205,6 +207,7 @@ construct_master_dataframe<-function(variable.details.df,
       df.text.name<-single_occ.var.df[i]
       main.df<-cbind(main.df, insert_vectors_with_single_screeningID(
         main.df,
+         id_cols,
         get(df.text.name)[!duplicated(get(df.text.name)[ , c(id_cols[1])]) ,var],
         get(df.text.name)[!duplicated(get(df.text.name)[ , c(id_cols[1])]), c(id_cols[1])])
       )
@@ -217,7 +220,7 @@ construct_master_dataframe<-function(variable.details.df,
 
   #Add site in
   main.df$site<-insert_vectors_with_single_screeningID(
-    main.df,
+    main.df, id_cols,
     get(name.of.screening.df)[!duplicated(get(name.of.screening.df)[ , c(id_cols[1])]) , c('site')],
     get(name.of.screening.df)[!duplicated(get(name.of.screening.df)[ , c(id_cols[1])]), c(id_cols[1])])
 
