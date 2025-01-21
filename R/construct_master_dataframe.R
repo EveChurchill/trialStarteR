@@ -47,7 +47,7 @@ construct_master_dataframe<-function(variable.details.df,
                                      name.of.visit.df='visit_completion',
                                      name.of.screening.df,
                                      number.arms=N.Arms,
-                                    field.description.df=DM.dictionary.fields) {
+                                    field.description.df=fields) {
 
 
   #Keep only fields which are in the variable.details.df
