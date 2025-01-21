@@ -15,6 +15,7 @@
 #' @export
 
 construct_baseline_table<-function(trial.data,
+                                   id_cols=c('screening', 'event_name', 'event_id'),
                                    var.spec=variable.details.df,
                                    id_cols=c("screening", "event_name", "event_id"),
                                    population.list.obj=itt,
