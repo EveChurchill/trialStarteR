@@ -15,7 +15,6 @@
 #' @export
 
 construct_baseline_table<-function(trial.data,
-                                   id_cols=c('screening', 'event_name', 'event_id'),
                                    var.spec=variable.details.df,
                                    id_cols=c("screening", "event_name", "event_id"),
                                    population.list.obj=itt,
@@ -88,7 +87,7 @@ construct_baseline_table<-function(trial.data,
   categorical<-ifelse(duplicated(categorical), paste(categorical, var.spec$DfProspectName[var.spec$VariableProspectName==categorical], sep=""), categorical)
 
   #Get baseline screening separate for ease
-  characteristic_data<-characteristic_data[, c(id_col[1], categorical, continuous)]
+  characteristic_data<-characteristic_data[, c(id_cols[1], categorical, continuous)]
 
   # Dataframe for results ---------------------------------------------------
 
