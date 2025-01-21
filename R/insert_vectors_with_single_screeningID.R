@@ -20,7 +20,7 @@
 #'                                       visit_completion$screening[!duplicated(visit_completion$screening)])
 #' @export
 
-insert_vectors_with_single_screeningID<-function(input_dataframe, vector_to_allocate, correspond.indivID.vector ) {
+insert_vectors_with_single_screeningID<-function(input_dataframe, id_cols, vector_to_allocate, correspond.indivID.vector) {
   allocated<-c()
   for (i in input_dataframe[,c(id_cols[1])]) {
     if (i %in% correspond.indivID.vector) {
