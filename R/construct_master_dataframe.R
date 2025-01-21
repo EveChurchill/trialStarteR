@@ -43,7 +43,7 @@
 
 construct_master_dataframe<-function(variable.details.df,
                                      blinded='y',
-                                     id_cols=c("screening", "event_id","event_name"),
+                                     id_cols=c("screening", "event_name", "event_id"),
                                      name.of.visit.df='visit_completion',
                                      name.of.screening.df,
                                      number.arms=N.Arms,
