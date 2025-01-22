@@ -21,7 +21,7 @@ construct_screening_table<-function(trial.data,
 
   all.variables.ordered<-var.spec$VariableProspectName[var.spec$screening_yn=='y']
 
-  all.variables.ordered<-suffix_replacement_refInput(all.variables.ordered)
+  all.variables.ordered<-suffix_replacement_refInput(all.variables.ordered, variable.details.df)
 
     if ('all' %in% all.variables.ordered) {
     stop('All variables in a dataframe are included in the baseline table. Please specify individually and rerun trial framework')

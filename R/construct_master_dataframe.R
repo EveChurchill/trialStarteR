@@ -71,8 +71,8 @@ construct_master_dataframe<-function(variable.details.df,
   id_cols<-id_cols[(id_cols %in% colnames(get(name.of.visit.df))) & (id_cols %in% colnames(get(name.of.screening.df)))]
 
   #Check visit df and screening df for other variables to add
-  visit_cols<-suffix_replacement_refInput(variable.details.df$VariableProspectName[variable.details.df$DfProspectName==name.of.visit.df])
-  screening_cols<-suffix_replacement_refInput(variable.details.df$VariableProspectName[variable.details.df$DfProspectName==name.of.screening.df])
+  visit_cols<-suffix_replacement_refInput(variable.details.df$VariableProspectName[variable.details.df$DfProspectName==name.of.visit.df], variable.details.df)
+  screening_cols<-suffix_replacement_refInput(variable.details.df$VariableProspectName[variable.details.df$DfProspectName==name.of.screening.df], variable.details.df)
 
   single_occ.var<-screening_cols; single_occ.var.df<-rep(name.of.screening.df, length(screening_cols))
   #Visit completion is always available in newer trials,
@@ -143,7 +143,7 @@ construct_master_dataframe<-function(variable.details.df,
 
         #If there is a variable name including suffix, all variables containing the text after suffix are needed
       } else if (any(grepl('suffix', df_spec_cols))) {
-        df_spec_cols<-suffix_replacement_refInput(df_spec_cols)
+        df_spec_cols<-suffix_replacement_refInput(df_spec_cols, variable.details.df)
 
         result<-merge_or_insert(main.df, df.text.name, df, id_cols, df_spec_cols, single_occ.var, single_occ.var.df)
         main.df<-as.data.frame(result[[1]]); single_occ.var<-result[[2]]; single_occ.var.df<-result[[3]]
@@ -258,7 +258,7 @@ construct_master_dataframe<-function(variable.details.df,
       attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==name][1]
 
       #If not in fields or lookups, then may have been entered as a suffix which has been flagged
-    } else if (name %in% suffix_replacement_refInput(variable.details.df$VariableProspectName[grepl('suffix', variable.details.df$VariableProspectName)])) {
+    } else if (name %in% suffix_replacement_refInput(variable.details.df$VariableProspectName[grepl('suffix', variable.details.df$VariableProspectName)], variable.details.df)) {
       #Find the relevent identfier to be found in lookups
       for (pattern in str_remove_all(variable.details.df$VariableProspectName[grepl('suffix', variable.details.df$VariableProspectName)], 'suffix')) {
         if (grepl(pattern, name)) {
