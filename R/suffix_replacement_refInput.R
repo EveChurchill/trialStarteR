@@ -20,10 +20,10 @@
 #'  @examples df_spec_cols<-suffix_replacement_refInput(df_spec_cols)
 #' @export
 
-suffix_replacement_refInput<-function(column.name.vector){
+suffix_replacement_refInput<-function(column.name.vector, variable.details.df){
   if (any(grepl('suffix', column.name.vector))){
     df.text.names<-variable.details.df$DfProspectName[match(column.name.vector, variable.details.df$VariableProspectName)]
-  
+
     new.column.names<-c()
     for (i in 1:length(column.name.vector)) {
       if (grepl('suffix', column.name.vector[i])) {
