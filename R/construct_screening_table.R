@@ -1,23 +1,36 @@
 #' Creates the screening characteristic table for reporting
 #'
 #' @description
-#' `construct_screening_table` returns a dataframe which summarises the screening characteristics
-#' specified within the AnalysisVariablesDetails.xlsx. With mean, median, sd, IQR, min and max for numerical variables,
-#' as well as counts of the number of each non-empty item in both numeric and categorical variables including each group within
-#' the categorical variables.
+#'   `construct_screening_table` returns a data frame which summarises the
+#'   screening characteristics specified within the
+#'   AnalysisVariablesDetails.xlsx. With mean, median, sd, IQR, min and max for
+#'   numerical variables, as well as counts of the number of each non-empty item
+#'   in both numeric and categorical variables including each group within the
+#'   categorical variables.
 #'
-#' @param trial.data (dataframe) the dataframe containing all the trial data - ideally created by the data_construction function in this package.
+#' @param trial.data (data frame) the data frame containing all the trial data -
+#'   ideally created by the data_construction function in this package.
 #'
-#' @param var.spec (dataframe) the dataframe within the inputs folder which specifies which variables to be seen in the screening table - typically called variable.details.df
+#' @param var.spec (data frame) the data frame within the inputs folder which
+#'   specifies which variables to be seen in the screening table - typically
+#'   called variable.details.df
 #'
-#' @returns (dataframe) returns a dataframe which summarises the screening characteristics
+#' @param id_cols (vector) the names of the id columns as a character vector.
+#'   Default is `c("screening", "event_name", "event_id")`.
+#'
+#' @param population.list.obj (list) a list object of the same length as the
+#'   number of arms. Each list element is a character vector containing the
+#'   screening numbers of participants in an arm in the relevant analysis
+#'   population.
+#'
+#' @returns (data frame) returns a data frame which summarises the screening
+#'   characteristics
 #'
 #' @export
-
 construct_screening_table<-function(trial.data,
                                     var.spec=variable.details.df,
                                     id_cols=c("screening", "event_name", "event_id"),
-                                    population.list.obj=itt){
+                                    population.list.obj=itt) {
 
   all.variables.ordered<-var.spec$VariableProspectName[var.spec$screening_yn=='y']
 

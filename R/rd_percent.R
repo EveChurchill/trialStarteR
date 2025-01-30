@@ -4,9 +4,9 @@
 #' `rd_percent` returns the percentage of n in N to the nearest integer
 #'
 #'
-#' @param n (numeric) the number of items with a certain characteristic from the group
+#' @param numerator.n (numeric) the number of items with a certain characteristic from the group
 #'
-#' @param N (numeric) the number of items in the group
+#' @param denominator.N (numeric) the number of items in the group
 #'
 #' @returns (numeric) returns a percentage of n in N to the nearest integer
 #'

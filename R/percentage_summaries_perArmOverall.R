@@ -7,7 +7,10 @@
 #'
 #' @param arm.n (numeric) The number of arms in the study
 #'
-#' @param itt (list) the list object of the participant IDs in each arm
+#' @param population.list.obj (list) a list object of the same length as the
+#'   number of arms. Each list element is a character vector containing the
+#'   screening numbers of participants in an arm in the relevant analysis
+#'   population.
 #'
 #' @returns (vector) returns the list of percentages to one decimal place in the format c(control.percentage, intervention1.percentage, ..., overall.percentage)
 #'

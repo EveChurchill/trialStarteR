@@ -4,12 +4,12 @@
 \alias{rd_percent}
 \title{Returns the percentage of n in N to the nearest integer'}
 \usage{
-rd_percent(n, N)
+rd_percent(numerator.n, denominator.N)
 }
 \arguments{
-\item{n}{(numeric) the number of items with a certain characteristic from the group}
+\item{numerator.n}{(numeric) the number of items with a certain characteristic from the group}
 
-\item{N}{(numeric) the number of items in the group}
+\item{denominator.N}{(numeric) the number of items in the group}
 }
 \value{
 (numeric) returns a percentage of n in N to the nearest integer

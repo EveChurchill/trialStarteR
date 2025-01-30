@@ -1,46 +1,61 @@
 #' Master dataframe construction
 #'
 #' @description
-#' `construct_master_dataframe` returns a master dataframe which can be used
-#' for primary analyses, or as a base dataset for sharing .
+#'   `construct_master_dataframe` returns a master data frame which can be used
+#'   for primary analyses, or as a base dataset for sharing.
 #'
 #' @details
-#' From the dataframes read in by Read-data.R, this function will produce a
-#' dataframe of all participants (from screening onwards) with the corresponding
-#' variables as specified in Inputs/AnalysisVariablesDetails.xlsx.
+#'   From the dataframes read in by Read-data.R, this function will produce a
+#'   dataframe of all participants (from screening onwards) with the
+#'   corresponding variables as specified in
+#'   Inputs/AnalysisVariablesDetails.xlsx.
 #'
-#' Any constant characteristics for each participant will be displayed in its own
-#' column, for example: sex, ethnicity
+#'    Any constant characteristics for each participant will be displayed in its
+#'    own column, for example: sex, ethnicity.
 #'
-#' Any date variables will need to be manipualted if another format other than the PROSPECT format is needed.
+#'   Any date variables will need to be manipulated if another format other than
+#'   the PROSPECT format is needed.
 #'
-#' Adverse events will also be included to this dataset (if specified within
-#' the input xlsx)
+#'   Adverse events will also be included to this dataset (if specified within
+#'   the input xlsx)
 #'
-#' If blinded='y', a dummy randomisation will be implemented. If blinded='n',
-#' the randomisation allocation will be taken from PROSPECT.
+#'   If blinded='y', a dummy randomisation will be implemented. If blinded='n',
+#'   the randomisation allocation will be taken from PROSPECT.
 #'
-#' If there are duplicate variable names, the df names will be appended to them e.g. variable.dfname
+#'   If there are duplicate variable names, the df names will be appended to
+#'   them e.g. variable.dfname
 #'
-#'
-#'
-#'
-#' @param variable.details.df (dataframe) should be the dataframe in the Inputs folder.
-#' An example can be seen in the template folder
+#' @param variable.details.df (data frame) should be the data frame in the
+#'   Inputs folder. An example can be seen in the template folder.
 #'
 #' @param blinded (character) This should be y or n
 #'
-#' @param name.of.screening.df (string) This is the name of the PROSPECT csv file which
-#' contains the details of all participants screened. In some trials, this is the
-#' "identification_log" or simply "screening_log".
+#' @param id_cols (vector) the names of the id columns as a character vector.
+#'   Default is `c("screening", "event_name", "event_id")`.
 #'
-#' @returns (dataframe) master dataframe to be used for analyses or as a basis
+#' @param name.of.visit.df (string) This is the name of the PROSPECT csv
+#'   file which contains the details of all visits. In some
+#'   trials, this is `"visit_completion"` or `"events"`. Default is
+#'   `"visit_completion"`.
+#'
+#' @param name.of.screening.df (string) This is the name of the PROSPECT csv
+#'   file which contains the details of all participants screened. In some
+#'   trials, this is the "identification_log" or simply "screening_log".
+#'
+#' @param number.arms (integer) the number of arms in the trial.
+#'
+#' @param field.description.df (data frame) the data frame containing the field
+#'   labels. Default is `fields`, this is often read in from Fields.csv.
+#'
+#' @returns (data frame) master data frame to be used for analyses or as a basis
 #'  for sharing
 #'
-#'  @examples master.df<-construct_master_dataframe(variable.details.df, blinded='y', "identification_log", number.arms=N.Arms)
+#' @examples
+#' \dontrun{
+#' master.df <- construct_master_dataframe(variable.details.df, blinded = 'y', "identification_log", number.arms=N.Arms)
+#' }
+#'
 #' @export
-
-
 construct_master_dataframe<-function(variable.details.df,
                                      blinded='y',
                                      id_cols=c("screening", "event_name", "event_id"),
@@ -49,12 +64,11 @@ construct_master_dataframe<-function(variable.details.df,
                                      number.arms=N.Arms,
                                     field.description.df=fields) {
 
-
   #Keep only fields which are in the variable.details.df
-  field.description.df$Form<-str_remove(field.description.df$Form, ".csv") %>%
-    str_replace_all("( - )| ", "_") %>%
-    str_remove_all("\\(|\\)|-") %>%
-    str_to_lower()
+  field.description.df$Form <- stringr::str_remove(field.description.df$Form, ".csv") %>%
+    stringr::str_replace_all("( - )| ", "_") %>%
+    stringr::str_remove_all("\\(|\\)|-") %>%
+    stringr::str_to_lower()
 
   field.description.df$Form<-trimws(gsub("[[:punct:][:space:]]+", "_", field.description.df$Form), which = 'left', whitespace = '_')
 
@@ -230,10 +244,10 @@ construct_master_dataframe<-function(variable.details.df,
 
 
   #Convert lookups form name to R environment name
-  lookups$form<-str_remove(lookups$form, ".csv") %>%
-    str_replace_all("( - )| ", "_") %>%
-    str_remove_all("\\(|\\)|-") %>%
-    str_to_lower()
+  lookups$form<-stringr::str_remove(lookups$form, ".csv") %>%
+    stringr::str_replace_all("( - )| ", "_") %>%
+    stringr::str_remove_all("\\(|\\)|-") %>%
+    stringr::str_to_lower()
 
   lookups$form<-trimws(gsub("[[:punct:][:space:]]+", "_", lookups$form), which = 'left', whitespace = '_')
 
@@ -260,14 +274,14 @@ construct_master_dataframe<-function(variable.details.df,
       #If not in fields or lookups, then may have been entered as a suffix which has been flagged
     } else if (name %in% suffix_replacement_refInput(variable.details.df$VariableProspectName[grepl('suffix', variable.details.df$VariableProspectName)], variable.details.df)) {
       #Find the relevent identfier to be found in lookups
-      for (pattern in str_remove_all(variable.details.df$VariableProspectName[grepl('suffix', variable.details.df$VariableProspectName)], 'suffix')) {
+      for (pattern in stringr::str_remove_all(variable.details.df$VariableProspectName[grepl('suffix', variable.details.df$VariableProspectName)], 'suffix')) {
         if (grepl(pattern, name)) {
           matching.lookups.field=trimws(gsub("[[:punct:][:space:]]+", "_", pattern), which = 'both', whitespace = '_')
           break
         }
       }
       #Label column with appropriate flag name and code name
-      attr(main.df[, c(name)], 'label') <- lookups$label[lookups$field==matching.lookups.field & lookups$code==str_remove(name, pattern)]
+      attr(main.df[, c(name)], 'label') <- lookups$label[lookups$field==matching.lookups.field & lookups$code==stringr::str_remove(name, pattern)]
 
       #If still can't be found then might be a duplicated namne in the main dataframe so then will have prospect file name appended
       #Of split off different pieces and check the reconstructed variable name for reconstructed prospect file name

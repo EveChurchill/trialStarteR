@@ -7,42 +7,68 @@
 construct_master_dataframe(
   variable.details.df,
   blinded = "y",
-  name.of.screening.df
+  id_cols = c("screening", "event_name", "event_id"),
+  name.of.visit.df = "visit_completion",
+  name.of.screening.df,
+  number.arms = N.Arms,
+  field.description.df = fields
 )
 }
 \arguments{
-\item{variable.details.df}{(dataframe) should be the dataframe in the Inputs folder.
-An example can be seen in the template folder}
+\item{variable.details.df}{(data frame) should be the data frame in the
+Inputs folder. An example can be seen in the template folder.}
 
 \item{blinded}{(character) This should be y or n}
 
-\item{name.of.screening.df}{(string) This is the name of the PROSPECT csv file which
-contains the details of all participants screened. In some trials, this is the
-"identification_log" or simply "screening_log".}
+\item{id_cols}{(vector) the names of the id columns as a character vector.
+Default is `c("screening", "event_name", "event_id")`.}
+
+\item{name.of.visit.df}{(string) This is the name of the PROSPECT csv
+file which contains the details of all visits. In some
+trials, this is `"visit_completion"` or `"events"`. Default is
+`"visit_completion"`.}
+
+\item{name.of.screening.df}{(string) This is the name of the PROSPECT csv
+file which contains the details of all participants screened. In some
+trials, this is the "identification_log" or simply "screening_log".}
+
+\item{number.arms}{(integer) the number of arms in the trial.}
+
+\item{field.description.df}{(data frame) the data frame containing the field
+labels. Default is `fields`, this is often read in from Fields.csv.}
 }
 \value{
-(dataframe) master dataframe to be used for analyses or as a basis
+(data frame) master data frame to be used for analyses or as a basis
  for sharing
-
- @examples master.df<-construct_master_dataframe(variable.details.df, blinded='y', "identification_log")
 }
 \description{
-`construct_master_dataframe` returns a master dataframe which can be used
-for primary analyses, or as a base dataset for sharing .
+`construct_master_dataframe` returns a master data frame which can be used
+  for primary analyses, or as a base dataset for sharing.
 }
 \details{
 From the dataframes read in by Read-data.R, this function will produce a
-dataframe of all participants (from screening onwards) with the corresponding
-variables as specified in Inputs/AnalysisVariablesDetails.xlsx.
+  dataframe of all participants (from screening onwards) with the
+  corresponding variables as specified in
+  Inputs/AnalysisVariablesDetails.xlsx.
 
-Any constant characteristics for each participant will be displayed in its own
-column, for example: sex, ethnicity
+   Any constant characteristics for each participant will be displayed in its
+   own column, for example: sex, ethnicity.
 
-Any date variables will need to be manipualted if another format other than the PROSPECT format is needed.
+  Any date variables will need to be manipulated if another format other than
+  the PROSPECT format is needed.
 
-Adverse events will also be included to this dataset (if specified within
-the input xlsx)
+  Adverse events will also be included to this dataset (if specified within
+  the input xlsx)
 
-If blinded='y', a dummy randomisation will be implemented. If blinded='n',
-the randomisation allocation will be taken from PROSPECT.
+  If blinded='y', a dummy randomisation will be implemented. If blinded='n',
+  the randomisation allocation will be taken from PROSPECT.
+
+  If there are duplicate variable names, the df names will be appended to
+  them e.g. variable.dfname
+}
+\examples{
+\dontrun{
+master.df <- construct_master_dataframe(variable.details.df, blinded = 'y', "identification_log", number.arms=N.Arms)
+}
+
 }

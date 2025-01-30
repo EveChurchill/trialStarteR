@@ -7,39 +7,56 @@
 merge_or_insert(
   main.df,
   df.text.name,
+  df,
+  id_cols,
   variable_s,
   single_occ.var,
   single_occ.var.df
 )
 }
 \arguments{
-\item{main.df}{(dataframe) This the dataframe to which the variables will be added.}
+\item{main.df}{(data frame) This the data frame to which the variables will
+be added.}
 
-\item{df.text.name}{(string) This is the string name of PROSPECT dataframe where the variables can be found}
+\item{df.text.name}{(string) This is the string name of PROSPECT data frame
+where the variables can be found}
 
-\item{variable_s}{(vector) This is a list of the variable(s) to add to the dataframe}
+\item{id_cols}{(vector) the names of the id columns as a character vector.
+Default is `c("screening", "event_name", "event_id")`.}
 
-\item{single_occ.var}{(vector) This is the accumulating list of variables to be inserted at the end of all merges.}
+\item{variable_s}{(vector) This is a list of the variable(s) to add to the
+data frame}
 
-\item{single_occ.var.df}{(vector) This is the respective PROSPECT dataframe names of single_occ.var}
+\item{single_occ.var}{(vector) This is the accumulating list of variables to
+be inserted at the end of all merges.}
+
+\item{single_occ.var.df}{(vector) This is the respective PROSPECT data frame
+names of single_occ.var}
 }
 \value{
-(dataframe, vector, vector) returns either updated dataframe with unchanged lists, or unchanged dataframe with updated lists
+(dataframe, vector, vector) returns either updated dataframe with
+  unchanged lists, or unchanged dataframe with updated lists.
 
  @examples result<-merge_or_insert(main.df,df.text.name, colnames(get(df.text.name)), single_occ.var, single_occ.var.df)
            main.df<-as.data.frame(result[[1]]); single_occ.var<-result[[2]]; single_occ.var.df<-result[[3]]
 }
 \description{
 `merge_or_insert` inserts new columns for constant variables over time, and
-merges variables which vary over time. It returns the inputted dataframe post-change,
-and any variables to be inserted with their corresponding prospect df name.
+  merges variables which vary over time. It returns the inputted data frame
+  post-change, and any variables to be inserted with their corresponding
+  prospect df name.
 }
 \details{
-Three returned items: the dataframe, the variables to be inserted, the variables' dataframe name in PROSPECT.
+Three returned items: the data frame, the variables to be inserted, the
+  variables' data frame name in PROSPECT.
 
-Either the dataframe will be returned unchanged with the list of variables and a list of their respective PROSPECT df names.
-Or the dataframe will be returned with the variables merged into the dataframe, and the lists will be unchanged from input.
+  Either the data frame will be returned unchanged with the list of variables
+  and a list of their respective PROSPECT df names. Or the data frame will be
+  returned with the variables merged into the data frame, and the lists will
+  be unchanged from input.
 
-Adverse events will be appended on to end of the dataframe with the event_names being 'Adverse Event 1' , 'Adverse Event 2' etc.
-These numbers correspond to the number of adverse events each individual has recorded within the dataframe.
+  Adverse events will be appended on to end of the data frame with the
+  event_names being 'Adverse Event 1' , 'Adverse Event 2' etc. These numbers
+  correspond to the number of adverse events each individual has recorded
+  within the data frame.
 }

@@ -4,14 +4,21 @@
 \alias{percentage_summaries_perArmOverall}
 \title{Returns percentages of items in each arm and overall'}
 \usage{
-percentage_summaries_perArmOverall(n, arm.n = N.Arms, itt = itt)
+percentage_summaries_perArmOverall(
+  n,
+  arm.n = N.Arms,
+  population.list.obj = itt
+)
 }
 \arguments{
 \item{n}{(vector) Vector of the number of people/items with a certain characteristic in each arm and overall. This should be inputted as c(control.n, intervention1.n, ..., overall.n)}
 
 \item{arm.n}{(numeric) The number of arms in the study}
 
-\item{itt}{(list) the list object of the participant IDs in each arm}
+\item{population.list.obj}{(list) a list object of the same length as the
+number of arms. Each list element is a character vector containing the
+screening numbers of participants in an arm in the relevant analysis
+population.}
 }
 \value{
 (vector) returns the list of percentages to one decimal place in the format c(control.percentage, intervention1.percentage, ..., overall.percentage)
