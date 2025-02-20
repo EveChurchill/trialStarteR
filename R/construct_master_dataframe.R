@@ -258,8 +258,14 @@ construct_master_dataframe<-function(variable.details.df,
     if (name %in% lookups$field & !all(is.na(lookups$code[lookups$field==name]))) {
       #If there are no stated levels in the data column, implement them from lookups
       if (is.null(levels(main.df[,c(name)]))) {
-        cds = lookups$code[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]]
-        lbls = lookups$label[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]]
+        
+        if (!all(is.na(variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]))){
+          cds = lookups$code[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]]
+          lbls = lookups$label[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]]
+        } else {
+          cds = lookups$code[lookups$field==name]
+          lbls = lookups$label[lookups$field==name]
+        }
 
 
         main.df[, c(name)] <- as.factor(ifelse(is.na(main.df[,c(name)]), NA, lbls[match(main.df[, c(name)], cds)]))
