@@ -191,6 +191,10 @@ construct_master_dataframe<-function(variable.details.df,
                                                                 by="day"),
                                                               length(unique(get(name.of.visit.df)[ , c(id_cols[1])]))),
                                                             unique(get(name.of.visit.df)[ , c(id_cols[1])]))
+    cds = lookups$code[lookups$field=='rand_arm']
+    lbls = lookups$label[lookups$field=='rand_arm']
+    
+    main.df$rand_arm <- as.factor(ifelse(is.na(main.df$rand_arm), NA, lbls[match(main.df$rand_arm, cds)]))
   } else {
     main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, id_cols, randomisation$rand_arm, randomisation[ , c(id_cols[1])])
     cds = lookups$code[lookups$field=='rand_arm']
