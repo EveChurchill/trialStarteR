@@ -69,7 +69,7 @@ merge_or_insert <- function(main.df,
     df[, c(id_cols[2])] <- ae_event_name
     df$visit_dt<-df$rep_dt
     #+ Adverse Events
-    main.df <- dplyr::bind_rows(main.df, df[, c(merge.ids, variable_s)])
+    main.df <- dplyr::bind_rows(main.df, df[, c(merge.ids, 'visit_dt', variable_s)])
 
 
   } else {
