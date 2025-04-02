@@ -91,22 +91,8 @@ construct_master_dataframe<-function(variable.details.df,
   single_occ.var<-screening_cols; single_occ.var.df<-rep(name.of.screening.df, length(screening_cols))
   #Visit completion is always available in newer trials,
   #so this is the first dataframe to be included
-  dts_screening<-colnames(get(name.of.screening.df))[grepl('_dt', colnames(get(name.of.screening.df)))]
-  if (length(dts_screening)==1) {
-    print(paste0(dts_screening, ' has been used to populate the visit_dt column' ))
-    screening_dt=dts_screening
-  } else {
-    str.dts_screening<-paste(paste0(1:length(dts_screening), '. ', dts_screening), collapse=', ')
-    screening_dt<-dts_screening[as.numeric(
-      readline(prompt = paste('Which of the following column names would you like to use as visit_dt?' ,
-                             str.dts_screening,
-                             'Please enter the number of your choice:',sep = ' ')))]
-  }
   main.df<-merge(get(name.of.visit.df)[ , c(id_cols, visit_cols)],
-                 get(name.of.screening.df)[, c(id_cols, screening_dt)],
-                 by.x=c(id_cols, 'visit_dt'),
-                 by.y=c(id_cols, screening_dt),
-                 all=TRUE)
+                 get(name.of.screening.df)[, c(id_cols)], by=id_cols, all=TRUE)
   
   #Loop through each dataframe and add the specified columns to the main df
   for (df.text.name in req.dataframes[!(req.dataframes %in% c(name.of.visit.df, name.of.screening.df))]) {
@@ -268,7 +254,7 @@ construct_master_dataframe<-function(variable.details.df,
     stringr::str_to_lower()
   
   lookups$form<-trimws(gsub("[[:punct:][:space:]]+", "_", lookups$form), which = 'left', whitespace = '_')
-  
+  lookups$form[grepl('study_completion_discontinuation', lookups$form)]<-'study_completion__discontinuation'
   #Make sure all labels are wrangles with lookups
   for (name in names(main.df)[!(names(main.df) %in% c(standard.set.column, 'rand_arm'))]) {
     
@@ -325,11 +311,11 @@ construct_master_dataframe<-function(variable.details.df,
             )
             attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==n &
                                                                               field.description.df$Form==n.df]
-        }}
+          }}
       }
     }
   }
-
+  
   return(main.df)
 }
 
