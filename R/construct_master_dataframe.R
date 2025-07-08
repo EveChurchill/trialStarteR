@@ -62,7 +62,8 @@ construct_master_dataframe<-function(variable.details.df,
                                      name.of.visit.df='visit_completion',
                                      name.of.screening.df,
                                      number.arms=N.Arms,
-                                    field.description.df=fields) {
+                                    field.description.df=fields,
+                                    cds_labels_df=lookups) {
 
     #Keep only fields which are in the variable.details.df
   field.description.df$Form <- stringr::str_remove(field.description.df$Form, ".csv") %>%
@@ -191,14 +192,14 @@ construct_master_dataframe<-function(variable.details.df,
                                                                 by="day"),
                                                               length(unique(get(name.of.visit.df)[ , c(id_cols[1])]))),
                                                             unique(get(name.of.visit.df)[ , c(id_cols[1])]))
-    cds = lookups$code[lookups$field=='rand_arm']
-    lbls = lookups$label[lookups$field=='rand_arm']
+    cds = cds_labels_df$code[cds_labels_df$field=='rand_arm']
+    lbls = cds_labels_df$label[cds_labels_df$field=='rand_arm']
     
     main.df$rand_arm <- as.factor(ifelse(is.na(main.df$rand_arm), NA, lbls[match(main.df$rand_arm, cds)]))
   } else {
     main.df$rand_arm<-insert_vectors_with_single_screeningID(main.df, id_cols, randomisation$rand_arm, randomisation[ , c(id_cols[1])])
-    cds = lookups$code[lookups$field=='rand_arm']
-    lbls = lookups$label[lookups$field=='rand_arm']
+    cds = cds_labels_df$code[cds_labels_df$field=='rand_arm']
+    lbls = cds_labels_df$label[cds_labels_df$field=='rand_arm']
     
     main.df$rand_arm <- as.factor(ifelse(is.na(main.df$rand_arm), NA, lbls[match(main.df$rand_arm, cds)]))
     #Add in randomisation date to main df
@@ -244,31 +245,31 @@ construct_master_dataframe<-function(variable.details.df,
   
   main.df<-main.df[ ,c(id_cols, 'site', single_occ.var, colnames(main.df)[!colnames(main.df) %in% c(id_cols, 'site', single_occ.var)])]
   #Return updated dataframes  to global environment
-  list2env(master[names(master)!=lookups], envir = .GlobalEnv)
+  list2env(master[names(master)!='lookups'], envir = .GlobalEnv)
   
   
   #Convert lookups form name to R environment name
-  lookups$form<-stringr::str_remove(lookups$form, ".csv") %>%
+  cds_labels_df$form<-stringr::str_remove(cds_labels_df$form, ".csv") %>%
     stringr::str_replace_all("( - )| ", "_") %>%
     stringr::str_remove_all("\\(|\\)|-") %>%
     stringr::str_to_lower()
   
-  lookups$form<-trimws(gsub("[[:punct:][:space:]]+", "_", lookups$form), which = 'left', whitespace = '_')
-  lookups$form[grepl('study_completion_discontinuation', lookups$form)]<-'study_completion__discontinuation'
-  #Make sure all labels are wrangles with lookups
+  cds_labels_df$form<-trimws(gsub("[[:punct:][:space:]]+", "_", cds_labels_df$form), which = 'left', whitespace = '_')
+  cds_labels_df$form[grepl('study_completion_discontinuation', cds_labels_df$form)]<-'study_completion__discontinuation'
+  #Make sure all labels are wrangles with cds_labels_df
   for (name in names(main.df)[!(names(main.df) %in% c(standard.set.column, 'rand_arm'))]) {
     
-    #If the name is in lookups and the code is not all NA
-    if (name %in% lookups$field & !all(is.na(lookups$code[lookups$field==name]))) {
-      #If there are no stated levels in the data column, implement them from lookups
+    #If the name is in cds_labels_df and the code is not all NA
+    if (name %in% cds_labels_df$field & !all(is.na(cds_labels_df$code[cds_labels_df$field==name]))) {
+      #If there are no stated levels in the data column, implement them from cds_labels_df
       if (is.null(levels(main.df[,c(name)]))) {
         
         if (!all(is.na(variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]))){
-          cds = lookups$code[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]]
-          lbls = lookups$label[lookups$field==name & lookups$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]]
+          cds = cds_labels_df$code[cds_labels_df$field==name & cds_labels_df$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]]
+          lbls = cds_labels_df$label[cds_labels_df$field==name & cds_labels_df$form==variable.details.df$DfProspectName[variable.details.df$VariableProspectName==name][1]]
         } else {
-          cds = lookups$code[lookups$field==name]
-          lbls =  lookups$label[lookups$field==name]
+          cds = cds_labels_df$code[cds_labels_df$field==name]
+          lbls =  cds_labels_df$label[cds_labels_df$field==name]
         }
         
         
@@ -291,7 +292,7 @@ construct_master_dataframe<-function(variable.details.df,
         }
       }
       #Label column with appropriate flag name and code name
-      attr(main.df[, c(name)], 'label') <- lookups$label[lookups$field==matching.lookups.field & lookups$code==stringr::str_remove(name, pattern)]
+      attr(main.df[, c(name)], 'label') <- cds_labels_df$label[cds_labels_df$field==matching.lookups.field & cds_labels_df$code==stringr::str_remove(name, pattern)]
       
       #If still can't be found then might be a duplicated namne in the main dataframe so then will have prospect file name appended
       #Of split off different pieces and check the reconstructed variable name for reconstructed prospect file name
@@ -303,11 +304,11 @@ construct_master_dataframe<-function(variable.details.df,
           name.splt[
             ifelse(i==length(name.splt), i, (i+1)):length(name.splt)
           ], collapse='_')
-        if (n %in% lookups$field) {
-          if (!all(is.na(lookups$code[lookups$field==n]))) {
+        if (n %in% cds_labels_df$field) {
+          if (!all(is.na(cds_labels_df$code[cds_labels_df$field==n]))) {
             main.df[, c(name)] <- factor(main.df[, c(name)],
-                                         levels = lookups$code[lookups$field==n & lookups$form==n.df],
-                                         labels = lookups$label[lookups$field==n & lookups$form==n.df]
+                                         levels = cds_labels_df$code[cds_labels_df$field==n & cds_labels_df$form==n.df],
+                                         labels = cds_labels_df$label[cds_labels_df$field==n & cds_labels_df$form==n.df]
             )
             attr(main.df[, c(name)], 'label') <- field.description.df$Label[field.description.df$Identifier==n &
                                                                               field.description.df$Form==n.df]
