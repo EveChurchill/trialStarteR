@@ -34,6 +34,8 @@ construct_baseline_table<-function(trial.data,
                                    population.list.obj=itt,
                                    fill_baselineNAs_screening_data='n'){
 
+  warning('This function has been depreciated (9Aug2025) - please swap to one of the summary table functions')
+
   if (fill_baselineNAs_screening_data=='n'){
     characteristic_data<-trial.data[trial.data[, c(id_cols[2])]=='Baseline', ]
 

@@ -16,12 +16,20 @@
 #'
 #'  @examples percentage_summaries_perArmOverall(c(2, 5, 3, 10))
 #' @export
-percentage_summaries_perArmOverall<-function(n, arm.n=N.Arms, population.list.obj=itt){
-  percents.arms<-c()
-  for (i in 1:N.Arms){
-    percents.arms<-append(percents.arms, rd_percent(n[i], length(population.list.obj[[i]])))
+percentage_summaries_perArmOverall<-function (n,
+                                              arm.n = N.Arms,
+                                              population.list.obj = itt
+) {
+  percents.arms <- c()
+  for (i in 1:arm.n) {
+    percents.arms <- append(percents.arms, rd_percent(n[i],
+                                                      length(population.list.obj[[i]])))
   }
-  i=i+1
-  percents.arms<-append(percents.arms, rd_percent(n[i], sum(unlist(lapply(population.list.obj, length)))))
+  if (!arm.n==1) {
+    i = i + 1
+    percents.arms <- append(percents.arms, rd_percent(n[i], sum(unlist(lapply(population.list.obj,
+                                                                              length)))))
+  }
   return(percents.arms)
 }
+

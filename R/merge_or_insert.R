@@ -26,6 +26,8 @@
 #' @param df.text.name (string) This is the string name of PROSPECT data frame
 #'   where the variables can be found
 #'
+#' @param df (dataframe) This is the dataframe named df.text.name
+#'
 #' @param id_cols (vector) the names of the id columns as a character vector.
 #'   Default is `c("screening", "event_name", "event_id")`.
 #'
