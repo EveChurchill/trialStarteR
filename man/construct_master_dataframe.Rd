@@ -11,7 +11,8 @@ construct_master_dataframe(
   name.of.visit.df = "visit_completion",
   name.of.screening.df,
   number.arms = N.Arms,
-  field.description.df = fields
+  field.description.df = fields,
+  cds_labels_df = lookups
 )
 }
 \arguments{
