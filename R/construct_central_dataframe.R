@@ -90,196 +90,118 @@ construct_central_dataframe<-function(
 
   # Main body of function ---------------------------------------------------
 
-  rlog::log_info('Converting PROSPECT df names to compatible versions')
-  field_df<-renameCRF_toR(field_df, 'Form')
-
-
-  #Get the required prospect df names
-  req_dataframes<-uniq_nonNA(analysis_variable_df$`Required-CRF-Name`)
-  if (include.adverse) {
-    req_dataframes<-append(
-      req_dataframes,
-      field_df$Form[grepl('adverse', field_df$Form, ignore.case = T)][1]
-    )
-  }
-
-  field_df <- field_df %>%
-    filter(Form %in% req_dataframes)
-
-
-
-  rlog::log_info('Checking for duplicated names')
-  #Find any duplicated names within specification
-  duplicated_names<-apply(
-    as.data.frame(
-      table(field_df$Identifier)
-    ) %>%
-      filter(!Var1 %in% standard.set.column &
-               Freq > 1) %>%
-      select(Var1),
-    as.character,
-    MARGIN=1
-  )
-
-
-  #These columns will be used to map the dataframes together when merging
-  id_cols<-id_cols[(id_cols %in% colnames(dataframe_list[[visit_df_name]])) &
+rlog::log_info("Converting PROSPECT df names to compatible versions")
+field_df <- renameCRF_toR(field_df, "Form")
+req_dataframes <- uniq_nonNA(analysis_variable_df$`Required-CRF-Name`)
+if (include.adverse) {
+  req_dataframes <- append(req_dataframes, field_df$Form[grepl("adverse", 
+                                                               field_df$Form, ignore.case = T)][1])
+}
+field_df <- field_df %>% filter(Form %in% req_dataframes)
+rlog::log_info("Checking for duplicated names")
+duplicated_names <- apply(as.data.frame(table(field_df$Identifier)) %>% 
+                            filter(!Var1 %in% standard.set.column & Freq > 1) %>% 
+                            select(Var1), as.character, MARGIN = 1)
+id_cols <- id_cols[(id_cols %in% colnames(dataframe_list[[visit_df_name]])) & 
                      (id_cols %in% colnames(dataframe_list[[screening_df_name]]))]
-
-  if(length(id_cols)<2){stop('Missing/Unavailable unique identifier column')}
-
-
-  #Visit completion is always available in newer trials,
-  #so this is the first dataframe to be included
-  rlog::log_info('Creating base dataframe')
-
-  #Expand grid so one participant and one timepoint to row
-  main_df<-expand.grid(
-    'screening' = dataframe_list[[visit_df_name]][
-      dataframe_list[[visit_df_name]][, c('event_name')]==timepoints[1] , c('screening')],
-    'event_name' = timepoints
-
-  ) %>% rbind(data.frame(
-    'screening'= dataframe_list[[screening_df_name]][ ,c('screening')],
-    'event_name' = rep('Screening',
-                       dim(dataframe_list[[screening_df_name]])[1])
-  )) %>%
-    arrange(order(screening))
-
-
-  rlog::log_info('Adding longitudinal data')
-  #Loop through each dataframe and add the specified columns to the main df when measured at different timepoints,
-  #else record to be added later as a constant per screening variable
-  single_occ_var<-c('site'); single_occ_var_df<-c(screening_df_name)
-  for (df.text.name in req_dataframes) {
-
-    #If there isn't any data in the df, then skip
-    if (any(dim(dataframe_list[[df.text.name]])==0)){
-      next
-    } else { #If there is data, then merge to main
-
-      corresponding.labels<-fields$Label[match(colnames(dataframe_list[[df.text.name]]), fields$Identifier)]
-
-      #Find corresponding variables
-      df_spec_cols<-colnames(dataframe_list[[df.text.name]])[
-        !colnames(dataframe_list[[df.text.name]]) %in% standard.set.column & #dont want 'created_by' etc
-          #Do not want assessor/PI etc names
-          !(is.na(corresponding.labels) |
-              grepl('name', corresponding.labels, ignore.case = T) |
-              grepl('assessor', corresponding.labels, ignore.case = T))
-      ]
-
-      df.duplicated.column<-df_spec_cols[df_spec_cols %in% duplicated_names]
-
-      #If there are any duplicated names, rename with dataframe name appended
-      if (any(!purrr::is_empty(df.duplicated.column) & !is.na(df.duplicated.column))) {
-
-
-        colnames(dataframe_list[[df.text.name]])<-ifelse(
-          colnames(dataframe_list[[df.text.name]]) %in% df.duplicated.column,
-          paste(df.duplicated.column,
-                df.text.name,
-                sep='_'),
-          colnames(dataframe_list[[df.text.name]])
-        )
-
-        df_spec_cols<-colnames(dataframe_list[[df.text.name]])[
-          !colnames(dataframe_list[[df.text.name]]) %in% standard.set.column &
-            !grepl('_sig', colnames(dataframe_list[[df.text.name]]))]
-
-
-      }
-
-      #Merge where longitudinal and record for constant timeperiod dfs
-      merge.ids <- id_cols[(id_cols  %in% colnames(dataframe_list[[df.text.name]])) &
-                             (id_cols %in% colnames(main_df))]
-
-      if (all(dataframe_list[[df.text.name]][, c('event_name')] == dataframe_list[[df.text.name]][, c('event_name')][1]) &
-          !(grepl('adverse', df.text.name))) {
-
-        #If all event_names are the same then add later
-        single_occ_var = append(single_occ_var, df_spec_cols)
-        single_occ_var_df = append(single_occ_var_df, rep(df.text.name, length(df_spec_cols)))
-
-      } else if (grepl('adverse', df.text.name)) {
-        ae_event_name <- c()
-        for (id in unique(dataframe_list[[df.text.name]][, c('screening')])) {
-          ae_event_name <- append(ae_event_name,
-                                  paste('Adverse Event', 1:sum(dataframe_list[[df.text.name]][, c('screening')] ==
-                                                                 id), sep = " "))
-        }
-        dataframe_list[[df.text.name]][, c('event_name')] <- ae_event_name
-        dataframe_list[[df.text.name]]$visit_dt<-df$rep_dt
-        #+ Adverse Events
-        main_df <- dplyr::bind_rows(main_df, dataframe_list[[df.text.name]][, c(merge.ids, 'visit_dt', df_spec_cols)])
-
-
-      } else {
-        main_df <- merge(main_df, dataframe_list[[df.text.name]][, c(merge.ids, df_spec_cols)], by = merge.ids, all = TRUE)
-      }
-
-    }
-  }
-
-  rlog::log_info('Adding characteristic data')
-  #For those variables which are constant, add them as a column (wide data)
-  # Step 1: Create a single dataframe from all single-occurrence variables
-  # This replaces your loop and the subsequent mutate() call
-  single_occ_data_list <- purrr::map2(single_occ_var, single_occ_var_df, function(char_var, df_name) {
-    df <- dataframe_list[[df_name]]
-
-    # Ensure the variable exists in the dataframe before proceeding
-    if (char_var %in% colnames(df)) {
-      # Create a small, temporary tibble for the variable
-      # We only need the screening ID and the characteristic variable itself
-      return(df %>% dplyr::select(screening, !!char_var))
-    } else {
-      return(NULL)
-    }
-  }) %>% purrr::compact() # remove NULL entries if a variable was missing
-
-  # Step 2: Combine all the single-occurrence data into a single wide dataframe
-  # `reduce` is a powerful purrr function for this task
-  combined_single_occ <- purrr::reduce(single_occ_data_list, dplyr::full_join, by = "screening")
-
-  # Step 3: Join the combined single-occurrence data to the main_df in one go
-  # This is the single, fast operation that replaces the slow loop
-  main_df <- main_df %>%
-    dplyr::left_join(combined_single_occ, by = "screening")
-
-  rlog::log_info('Organising dataframe')
-  main_df<-main_df[ ,c(id_cols, 'site', single_occ_var, colnames(main_df)[!colnames(main_df) %in% c(id_cols, 'site', single_occ_var)])]
-  main_df<-main_df[ , !duplicated(colnames(main_df))]
-
-
-  rlog::log_info('Dummy randomising if needed')
-  #Add in randomisation allocation to main df - rand_arm is dummy, otherwise randomisation$rand_arm
-  if (blinded == 'y') {
-    set.seed(2602)
-    screening_ids <- unique(dataframe_list[[visit_df_name]][['screening']])
-
-    # Create the randomization lookup table once
-    rand_lookup <- tibble(
-      screening = screening_ids,
-      rand_arm = sample(1:number.arms, length(screening_ids), replace = TRUE),
-      rand_dt = dataframe_list[[visit_df_name]][['visit_dt']][
-        match(screening_ids, dataframe_list[[visit_df_name]][['screening']])
-      ]
-    )
-
+if (length(id_cols) < 2) {
+  stop("Missing/Unavailable unique identifier column")
+}
+rlog::log_info("Creating base dataframe")
+main_df <- expand.grid(screening = dataframe_list[[visit_df_name]][dataframe_list[[visit_df_name]][, 
+                                                                                                   c("event_name")] == timepoints[1], c("screening")], event_name = timepoints) %>% 
+  rbind(data.frame(screening = dataframe_list[[screening_df_name]][, 
+                                                                   c("screening")], event_name = rep("Screening", dim(dataframe_list[[screening_df_name]])[1]))) %>% 
+  arrange(order(screening))
+rlog::log_info("Adding longitudinal data")
+single_occ_var <- c("site")
+single_occ_var_df <- c(screening_df_name)
+for (df.text.name in req_dataframes) {
+  if (any(dim(dataframe_list[[df.text.name]]) == 0)) {
+    next
   } else {
-    # Assuming randomisation is already a dataframe
-    rand_lookup <- randomisation %>%
-      dplyr::select(screening, rand_arm, rand_dt)
+    corresponding.labels <- fields$Label[match(colnames(dataframe_list[[df.text.name]]), 
+                                               fields$Identifier)]
+    df_spec_cols <- colnames(dataframe_list[[df.text.name]])[!colnames(dataframe_list[[df.text.name]]) %in% 
+                                                               standard.set.column & !(is.na(corresponding.labels) | 
+                                                                                         grepl("name", corresponding.labels, ignore.case = T) | 
+                                                                                         grepl("assessor", corresponding.labels, ignore.case = T))]
+    df.duplicated.column <- df_spec_cols[df_spec_cols %in% 
+                                           duplicated_names]
+    if (any(!purrr::is_empty(df.duplicated.column) & 
+            !is.na(df.duplicated.column))) {
+      colnames(dataframe_list[[df.text.name]]) <- ifelse(colnames(dataframe_list[[df.text.name]]) %in% 
+                                                           df.duplicated.column, paste(df.duplicated.column, 
+                                                                                       df.text.name, sep = "_"), colnames(dataframe_list[[df.text.name]]))
+      df_spec_cols <- colnames(dataframe_list[[df.text.name]])[!colnames(dataframe_list[[df.text.name]]) %in% 
+                                                                 standard.set.column & !grepl("_sig", colnames(dataframe_list[[df.text.name]]))]
+    }
+    merge.ids <- id_cols[(id_cols %in% colnames(dataframe_list[[df.text.name]])) & 
+                           (id_cols %in% colnames(main_df))]
+    
+    if (all(dataframe_list[[df.text.name]][, c("event_name")] == 
+            dataframe_list[[df.text.name]][, c("event_name")][1]) & 
+        !(grepl("adverse", df.text.name))) {
+      single_occ_var = append(single_occ_var, df_spec_cols)
+      single_occ_var_df = append(single_occ_var_df, 
+                                 rep(df.text.name, length(df_spec_cols)))
+      
+    } else if (grepl("adverse", df.text.name)) {
+      ae_event_name <- c()
+      for (id in unique(dataframe_list[[df.text.name]][, 
+                                                       c("screening")])) {
+        ae_event_name <- append(ae_event_name, paste("Adverse Event", 
+                                                     1:sum(dataframe_list[[df.text.name]][, c("screening")] == 
+                                                             id), sep = " "))
+      }
+      dataframe_list[[df.text.name]][, c("event_name")] <- ae_event_name
+      dataframe_list[[df.text.name]]$visit_dt <- df$rep_dt
+      main_df <- dplyr::bind_rows(main_df, dataframe_list[[df.text.name]][, 
+                                                                          c(merge.ids, "visit_dt", df_spec_cols)])
+    } else {
+      main_df <- merge(main_df, dataframe_list[[df.text.name]][, 
+                                                               c(merge.ids, df_spec_cols)], by = merge.ids, 
+                       all = TRUE)
+    }
   }
-
-  # Join the lookup table to the main_df in a single, fast operation
-  main_df <- main_df %>%
-    dplyr::full_join(rand_lookup, by = 'screening')
-
-  rlog::log_info('Labelling and converting columns')
-  main_df<-label_n_convert(main_df, dupl_n = duplicated_names)
-
+}
+rlog::log_info("Adding characteristic data")
+single_occ_data_list <- purrr::map2(single_occ_var, single_occ_var_df, 
+                                    function(char_var, df_name) {
+                                      df <- dataframe_list[[df_name]]
+                                      if (char_var %in% colnames(df) & !char_var %in% colnames(main_df)) {
+                                        return(df %>% dplyr::select(screening, !!char_var))
+                                      }
+                                      else {
+                                        return(NULL)
+                                      }
+                                    }) %>% purrr::compact()
+combined_single_occ <- purrr::reduce(single_occ_data_list, 
+                                     dplyr::full_join, by = "screening")
+main_df <- main_df %>% dplyr::left_join(combined_single_occ, 
+                                        by = "screening")
+rlog::log_info("Organising dataframe")
+main_df<-main_df[ ,!grepl('\\.y', colnames(main_df))]
+colnames(main_df)<-colnames(main_df) %>% str_remove_all('\\.x')
+main_df <- main_df[, c(id_cols, "site", single_occ_var, colnames(main_df)[
+  !colnames(main_df) %in% c(id_cols, "site", single_occ_var)
+])
+]
+main_df <- main_df[, !duplicated(colnames(main_df))]
+rlog::log_info("Dummy randomising if needed")
+if (blinded == "y") {
+  set.seed(2602)
+  screening_ids <- unique(dataframe_list[[visit_df_name]][["screening"]])
+  rand_lookup <- tibble(screening = screening_ids, rand_arm = sample(1:number.arms, 
+                                                                     length(screening_ids), replace = TRUE), rand_dt = dataframe_list[[visit_df_name]][["visit_dt"]][match(screening_ids, 
+                                                                                                                                                                           dataframe_list[[visit_df_name]][["screening"]])])
+} else {
+  rand_lookup <- randomisation %>% dplyr::select(screening, 
+                                                 rand_arm, rand_dt)
+}
+main_df <- main_df %>% dplyr::full_join(rand_lookup, by = "screening")
+rlog::log_info("Labelling and converting columns")
+main_df <- label_n_convert(main_df, dupl_n = duplicated_names)
 
   return(list(main_df,
               dataframe_list
