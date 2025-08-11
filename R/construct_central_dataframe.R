@@ -79,7 +79,7 @@ construct_central_dataframe<-function(
     visit_df_name = 'visit_completion',
     screening_df_name = 'identification_log',
     number.arms = N.Arms,
-    id_cols = id_cols,
+    id_cols = c('screening' , 'event_name'),
     field_df = fields,
     include.adverse = F, #default is F,
     blinded = 'n'
