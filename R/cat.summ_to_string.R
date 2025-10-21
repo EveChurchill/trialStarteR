@@ -46,7 +46,7 @@ cat.summ_to_string<-function(categorical.data.name,
 
     row.text.vector[[label.n]]<-c(
       paste0(
-        attr(core[[categorical.data.name]], 'label'),
+         attr(dataframe_object[ , categorical.data.name], 'label')[1],
         ': N(%)'),
       paste(
         unlist(n.obsv),
