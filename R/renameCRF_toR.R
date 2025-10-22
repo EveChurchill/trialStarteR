@@ -25,11 +25,11 @@ renameCRF_toR<-function(df = .,
   rowwise() %>%
   mutate(R_dfName = 
            case_when(
-             !(!!sym(subform.column.name)) =='' ~ paste(
-               (!!sym(form.column.name)),
-               (!!sym(subform.column.name)),
+             !(!!rlang::sym(subform.column.name)) =='' ~ paste(
+               (!!rlang::sym(form.column.name)),
+               (!!rlang::sym(subform.column.name)),
                sep='_'), 
-             .default = (!!sym(form.column.name))) %>%
+             .default = (!!rlang::sym(form.column.name))) %>%
            str_replace_all("( - )| ", "_") %>%
            str_remove_all("^[[:digit:]]+") %>%
            str_remove_all("\\(|\\)|-|/") %>%
