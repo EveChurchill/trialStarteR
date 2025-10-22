@@ -17,24 +17,28 @@
 #'  @examples lookups<-mutate_dict_duplicates(dupl_n = c('age', 'sex', 'wd_dt'))
 #' @export
 
-mutate_dict_duplicates<-function(dictionary_df = lookups, dupl_n = duplicated_names) {
-  if (!'form' %in% colnames(dictionary_df)) {
-    original_colnames=colnames(dictionary_df)
-    colnames(dictionary_df)[original_colnames==c('Form', 'Identifier')]<-c('form', 'field')
-  } else {
-    original_colnames=colnames(dictionary_df)
-  }
+mutate_dict_duplicates<-function(dictionary_df = .,
+                                 dupl_n = duplicated_names, 
+                                 updated_CRF_name = 'R_dfName',
+                                 variableName_col = 'field'
+                                ) {
 
-  dictionary_df <-
-    dictionary_df %>%
-    rowwise() %>%
-    mutate(
-      field = ifelse(field %in% dupl_n,
-                     paste(field, form, sep='_'),
-                     field)
+stopifnot(updated_CRF_name %in% colnames(dictionary_df) &
+            variableName_col %in% colnames(dictionary_df))
+
+
+dictionary_df <-
+  dictionary_df %>%
+  rowwise() %>%
+  mutate(modified_Identifier = ifelse(
+      (!!rlang::sym(variableName_col)) %in% dupl_n,
+      paste((!!rlang::sym(variableName_col)), (!!rlang::sym(updated_CRF_name)), sep='_'),
+      (!!rlang::sym(variableName_col))
     )
+  )
 
 
-  colnames(dictionary_df)=original_colnames
+colnames(dictionary_df)=original_colnames
+  
   return(dictionary_df)
 }
