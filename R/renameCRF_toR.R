@@ -15,7 +15,9 @@
 #'                           form.column.name = 'Form')
 #' @export
 renameCRF_toR<-function(df = .,
-                        form.column.name = 'form') {
+                        form.column.name = 'form',
+                        subform.column.name = 'subform'
+                       ) {
 
   stopifnot(form.column.name %in% colnames(df))
 
