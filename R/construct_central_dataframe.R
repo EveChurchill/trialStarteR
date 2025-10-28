@@ -91,7 +91,9 @@ construct_central_dataframe<-function(
   # Main body of function ---------------------------------------------------
 
 rlog::log_info("Converting PROSPECT df names to compatible versions")
-field_df <- renameCRF_toR(field_df, "Form")
+field_df <- renameCRF_toR(field_df,  
+                          form.column.name = "Form",
+                          subform.column.name = 'Subform')
 req_dataframes <- uniq_nonNA(analysis_variable_df$`Required-CRF-Name`)
 if (include.adverse) {
   req_dataframes <- append(req_dataframes, field_df$Form[grepl("adverse", 
