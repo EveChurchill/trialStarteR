@@ -28,7 +28,7 @@
 #'    characteristics by arm and overall
 #'
 #' @export
-summary_table_by_arm <- function(
+summary_table_overall <- function(
     data_to_summarise = .,
     summary_variables = analysis_variable_df$`Screening-Summary-Variables`,
     population.list.obj = itt,
