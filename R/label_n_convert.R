@@ -28,15 +28,19 @@ label_n_convert<-function(
     type.dictionary = fields
 ) {
 
-  label.dictionary<-mutate_dict_duplicates(
-    renameCRF_toR(label.dictionary),
-    dupl_n
-  )
-
-  type.dictionary<-mutate_dict_duplicates(
-    renameCRF_toR(type.dictionary, form.column.name = 'Form'),
-    dupl_n
-  )
+    label.dictionary<-mutate_dict_duplicates(
+      renameCRF_toR(label.dictionary,
+                    form.column.name = 'form',
+                    subform.column.name = 'subform'),
+      dupl_n
+    )
+    
+    type.dictionary<-mutate_dict_duplicates(
+      renameCRF_toR(type.dictionary,
+                    form.column.name = 'Form',
+                    subform.column.name = 'Subform'),
+      dupl_n, variableName_col = 'Identifier'
+    )
 
   for (col in colnames(main.df)[!colnames(main.df) %in% standard.set.column]) {
 
