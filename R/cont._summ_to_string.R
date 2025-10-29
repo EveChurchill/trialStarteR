@@ -28,6 +28,7 @@
 cont.summ_to_string<-function(dataframe_object = .,
                               continuous.data.name,
                               population.list.obj = itt,
+                              id_cols = c('screening', 'event_name'),
                               include_mad = F,
                               dec_places = 1,
                               by_arm = T){
