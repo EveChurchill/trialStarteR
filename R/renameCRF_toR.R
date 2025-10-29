@@ -28,21 +28,24 @@ renameCRF_toR<-function(df = .,
     colnames(df)
   )] <- c('Form', 'Subform')
   
-  
-  #Transform form names into R appropriate names
-  df = df %>% 
-    rowwise() %>%
-    mutate(R_dfName = 
-             case_when(
-               !(Subform =='') ~ paste(
-                 Form, Subform,
-                 sep='_'), 
-               .default = Form) %>%
-             str_replace_all("( - )| ", "_") %>%
-             str_remove_all("^[[:digit:]]+") %>%
-             str_remove_all("\\(|\\)|-|/") %>%
-             str_to_lower()
-    )
+  if (any(grepl(' ', df$Form))) {
+    #Transform form names into R appropriate names
+    df = df %>% 
+      rowwise() %>%
+      mutate(R_dfName = 
+               case_when(
+                 !(Subform =='') ~ paste(
+                   Form, Subform,
+                   sep='_'), 
+                 .default = Form) %>%
+               str_replace_all("( - )| ", "_") %>%
+               str_remove_all("^[[:digit:]]+") %>%
+               str_remove_all("\\(|\\)|-|/") %>%
+               str_to_lower()
+      )
+
+    field_df$Form <- field_df$R_dfName
+  }
   
   colnames(df)[match(
     c('Form', 'Subform'),
