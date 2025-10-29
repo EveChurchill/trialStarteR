@@ -25,6 +25,7 @@
 cat.summ_to_string<-function(categorical.data.name,
                              dataframe_object,
                              population.list.obj = itt,
+                             id_cols = c('screening', 'event_name'),
                              by_arm = T){
 
   var.data<-as.factor(unlist(dataframe_object[dataframe_object[, c(id_cols[1])] %in% unlist(population.list.obj) , c(categorical.data.name)]))
