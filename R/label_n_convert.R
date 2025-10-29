@@ -70,7 +70,7 @@ label_n_convert<-function(
       } else {
         col_labels = label.dictionary[label.dictionary$field==flag_var &
                                         label.dictionary$form==col_type.df$Form, ]
-        col.type=col_type.df$Type
+        col_type=col_type.df$Type[1]
       }
     }
 
