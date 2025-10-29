@@ -19,24 +19,35 @@ renameCRF_toR<-function(df = .,
                         subform.column.name = 'subform'
                        ) {
 
-  stopifnot(form.column.name %in% colnames(df))
-
-
-  #Transform form names into R appropriate names
- df <- df %>% 
-  rowwise() %>%
-  mutate(R_dfName = 
-           case_when(
-             !(!!rlang::sym(subform.column.name)) =='' ~ paste(
-               (!!rlang::sym(form.column.name)),
-               (!!rlang::sym(subform.column.name)),
-               sep='_'), 
-             .default = (!!rlang::sym(form.column.name))) %>%
-           str_replace_all("( - )| ", "_") %>%
-           str_remove_all("^[[:digit:]]+") %>%
-           str_remove_all("\\(|\\)|-|/") %>%
-           str_to_lower()
-  )
   
+  
+  stopifnot(form.column.name %in% colnames(df))
+  
+  colnames(df)[match(
+    c(form.column.name, subform.column.name),
+    colnames(df)
+  )] <- c('Form', 'Subform')
+  
+  
+  #Transform form names into R appropriate names
+  df = df %>% 
+    rowwise() %>%
+    mutate(R_dfName = 
+             case_when(
+               !(Subform =='') ~ paste(
+                 Form, Subform,
+                 sep='_'), 
+               .default = Form) %>%
+             str_replace_all("( - )| ", "_") %>%
+             str_remove_all("^[[:digit:]]+") %>%
+             str_remove_all("\\(|\\)|-|/") %>%
+             str_to_lower()
+    )
+  
+  colnames(df)[match(
+    c('Form', 'Subform'),
+    colnames(df)
+  )] <- c(form.column.name, subform.column.name)
+
   return(df)
 }
