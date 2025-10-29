@@ -32,6 +32,7 @@ summary_table_by_arm <- function(
     id_cols = c("screening", "event_name")
 ) {
 
+  
   # Initialize the results table with correct column names and types
   column_names <- c('Measure', arm.names, 'Overall')
   summary_table.presented <- data.frame(
@@ -39,10 +40,10 @@ summary_table_by_arm <- function(
     stringsAsFactors = FALSE
   )
   colnames(summary_table.presented) <- column_names
-
+  
   # Loop through each variable to summarize
   for (variable in summary_variables) {
-
+    
     # Check if the variable exists and handle potential duplicates interactively
     if (!variable %in% colnames(data_to_summarise)) {
       duplicates <- colnames(data_to_summarise)[grepl(variable, colnames(data_to_summarise))]
@@ -56,14 +57,19 @@ summary_table_by_arm <- function(
         variable <- duplicates[as.numeric(choice)]
       }
     }
-
+    
     # Get variable label, with a fallback to the variable name
     item_name <- attr(data_to_summarise[[variable]], 'label')
+    
     if (is.null(item_name)) {
       item_name <- variable
       warning(paste("Label for '", variable, "' not found. Using coded variable name instead.", sep = ""))
+    } else if (length(item_name) > 1) {
+      warning(paste("Duplicate label for '", variable, "': ", item_name,
+                    ". Please manually update in Read-data file", sep = ""))
+      item_name = item_name[1]
     }
-
+    
     # Summarize continuous variables
     if (is.numeric(data_to_summarise[[variable]])) {
       data_to_log <- cont.summ_to_string(
@@ -71,14 +77,14 @@ summary_table_by_arm <- function(
         dataframe_object = data_to_summarise,
         by_arm = TRUE
       )
-
+      
       # Prepare data for new rows
       counts <- unlist(data_to_log[[1]])
       percentages <- percentage_summaries_perArmOverall(counts, population.list.obj = population.list.obj)
-
+      
       # Combine counts and percentages into a formatted string
       n_perc_string <- paste0(counts, ' (', percentages, '%)')
-
+      
       rows_to_add <- data.frame(
         Measure = c(
           paste0(item_name, ': N (%)'),
@@ -88,7 +94,7 @@ summary_table_by_arm <- function(
         ),
         stringsAsFactors = FALSE
       )
-
+      
       rows_to_add <- cbind(rows_to_add,
                            t(data.frame(
                              n_perc_string,
@@ -96,10 +102,10 @@ summary_table_by_arm <- function(
                              data_to_log[[3]],
                              data_to_log[[4]]
                            )))
-
+      
       colnames(rows_to_add) <- column_names
       summary_table.presented <- rbind(summary_table.presented, rows_to_add)
-
+      
       # Summarize categorical variables
     } else if (!is.null(levels(data_to_summarise[[variable]]))) {
       row_text <- cat.summ_to_string(
@@ -107,7 +113,7 @@ summary_table_by_arm <- function(
         dataframe_object = data_to_summarise,
         by_arm = TRUE
       )
-
+      
       rows_to_add <- do.call(rbind, row_text)
       colnames(rows_to_add) <- column_names
       summary_table.presented <- rbind(summary_table.presented, rows_to_add)
@@ -116,6 +122,8 @@ summary_table_by_arm <- function(
       next
     }
   }
+
+    rownames(summary_table.presented) <- 1:(dim(summary_table.presented)[1])
 
   return(summary_table.presented)
 }
