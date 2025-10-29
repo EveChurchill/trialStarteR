@@ -44,7 +44,7 @@ renameCRF_toR<-function(df = .,
                str_to_lower()
       )
 
-    field_df$Form <- field_df$R_dfName
+    df$Form <- df$R_dfName
   }
   
   colnames(df)[match(
