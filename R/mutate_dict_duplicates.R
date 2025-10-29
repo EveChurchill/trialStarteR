@@ -38,7 +38,7 @@ dictionary_df <-
   )
 
 
-colnames(dictionary_df)=original_colnames
+colnames(dictionary_df)[colnames(dictionary_df)=='modified_Identifier']=variableName_col
   
   return(dictionary_df)
 }
