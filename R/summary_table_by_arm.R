@@ -29,7 +29,8 @@ summary_table_by_arm <- function(
     data_to_summarise = .,
     summary_variables = analysis_variable_df$`Baseline-Summary-Variables`,
     population.list.obj = itt,
-    id_cols = c("screening", "event_name")
+    id_cols = c("screening", "event_name"),
+    dp = 1
 ) {
 
   
@@ -75,7 +76,8 @@ summary_table_by_arm <- function(
       data_to_log <- cont.summ_to_string(
         continuous.data.name = variable,
         dataframe_object = data_to_summarise,
-        by_arm = TRUE
+        by_arm = TRUE,
+          dec_places = dp
       )
       
       # Prepare data for new rows
