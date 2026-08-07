@@ -48,7 +48,7 @@ cont.summ_to_string<-function(dataframe_object = .,
     sds<-lapply(arm.data, sd_rounding_rm_na)
     mads<-paste0('[',lapply(lapply(arm.data, mad, na.rm=TRUE), round, dec_places), ']')
 
-    summs<-lapply(arm.data, numerical_summary_rounded)
+    summs<-lapply(arm.data, numerical_summary_rounded, decimal_places = dec_places)
     summs.lengths.cs<-c(0, cumsum(unlist(lapply(summs, length))))[1:(N.Arms+1)]
   } else {
 
